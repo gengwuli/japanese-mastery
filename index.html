@@ -1,0 +1,1871 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日本語マスター - Japanese Mastery</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#C23B22">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="日本語">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FAF6F0;--bg2:#F5EDE3;--bg3:#EDE4D8;
+  --ink:#2C2421;--ink2:#5C4F47;--ink3:#8A7D74;
+  --red:#C23B22;--red2:#A03020;--gold:#B8860B;--gold2:#DAA520;
+  --green:#4A7C59;--blue:#4A6FA5;--purple:#7B5EA7;
+  --shadow:0 2px 8px rgba(44,36,33,0.08);
+  --radius:8px;--radius2:12px;
+  --font-jp:'Hiragino Kaku Gothic ProN','Yu Gothic','Noto Sans JP',sans-serif;
+  --font-en:'Georgia',serif;
+  --nav-w:220px;
+  --transition:0.25s ease;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--font-jp);background:var(--bg);color:var(--ink);line-height:1.7;min-height:100vh}
+a{color:var(--red);text-decoration:none}
+a:hover{color:var(--red2)}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:inherit;font-size:1rem}
+h1{font-size:1.8rem;font-weight:700}
+h2{font-size:1.4rem;font-weight:600;margin-bottom:16px}
+h3{font-size:1.15rem;font-weight:600}
+
+.app{display:flex;min-height:100vh}
+.sidebar{
+  width:var(--nav-w);background:var(--bg2);border-right:1px solid var(--bg3);
+  position:fixed;top:0;left:0;bottom:0;z-index:100;
+  display:flex;flex-direction:column;overflow-y:auto;
+  transition:transform var(--transition);
+}
+.sidebar.closed{transform:translateX(-100%)}
+.main{margin-left:var(--nav-w);flex:1;min-height:100vh;transition:margin-left var(--transition)}
+.main.expanded{margin-left:0}
+.main-inner{max-width:1000px;margin:0 auto;padding:24px 32px 100px}
+
+.logo{padding:20px 16px 12px;border-bottom:1px solid var(--bg3)}
+.logo h1{font-size:1.1rem;color:var(--red);letter-spacing:1px}
+.logo small{color:var(--ink3);font-size:0.7rem;font-family:var(--font-en)}
+.nav-list{list-style:none;padding:8px 0;flex:1}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:10px 16px;
+  color:var(--ink2);cursor:pointer;font-size:0.9rem;
+  transition:all var(--transition);border-left:3px solid transparent;
+}
+.nav-item:hover{background:var(--bg3);color:var(--ink)}
+.nav-item.active{background:var(--bg);color:var(--red);border-left-color:var(--red);font-weight:600}
+.nav-icon{width:20px;text-align:center;font-size:1rem}
+.nav-section{padding:8px 16px 4px;font-size:0.7rem;color:var(--ink3);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.hamburger{
+  display:none;position:fixed;top:12px;left:12px;z-index:200;
+  background:var(--bg2);border:1px solid var(--bg3);border-radius:var(--radius);
+  padding:8px 10px;font-size:1.2rem;color:var(--ink2);
+}
+
+.card{background:#fff;border-radius:var(--radius2);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:8px 16px;border-radius:var(--radius);font-size:0.85rem;font-weight:500;
+  transition:all var(--transition);
+}
+.btn-primary{background:var(--red);color:#fff}
+.btn-primary:hover{background:var(--red2)}
+.btn-secondary{background:var(--bg2);color:var(--ink2);border:1px solid var(--bg3)}
+.btn-secondary:hover{background:var(--bg3)}
+.btn-sm{padding:5px 10px;font-size:0.8rem}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-gold:hover{background:var(--gold2)}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{opacity:0.9}
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:600}
+.badge-n5{background:#E8F5E9;color:#2E7D32}
+.badge-n4{background:#E3F2FD;color:#1565C0}
+.badge-n3{background:#FFF3E0;color:#E65100}
+.badge-n2{background:#F3E5F5;color:#6A1B9A}
+.badge-n1{background:#FCE4EC;color:#AD1457}
+
+.grid{display:grid;gap:12px}
+.grid-2{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}
+.grid-3{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.grid-4{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+
+.lesson-card,.song-card{
+  background:#fff;border-radius:var(--radius);padding:14px 16px;
+  box-shadow:var(--shadow);cursor:pointer;transition:all var(--transition);
+  border-left:3px solid var(--bg3);
+}
+.lesson-card:hover,.song-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(44,36,33,0.12);border-left-color:var(--red)}
+.lesson-card .lesson-num{font-size:0.75rem;color:var(--ink3);font-family:var(--font-en)}
+.lesson-card .lesson-title{font-weight:600;margin-top:2px}
+.song-card .song-title{font-weight:600}
+
+.search-bar{
+  display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;
+}
+.search-bar input{
+  flex:1;min-width:200px;padding:8px 14px;border:1px solid var(--bg3);
+  border-radius:var(--radius);background:#fff;
+}
+.search-bar input:focus{outline:none;border-color:var(--red)}
+.filter-btn{
+  padding:6px 12px;border-radius:16px;font-size:0.8rem;font-weight:500;
+  background:var(--bg2);color:var(--ink2);border:1px solid var(--bg3);
+  cursor:pointer;transition:all var(--transition);
+}
+.filter-btn.active{background:var(--red);color:#fff;border-color:var(--red)}
+
+.vocab-table{width:100%;border-collapse:collapse}
+.vocab-table th{text-align:left;padding:8px 12px;font-size:0.8rem;color:var(--ink3);border-bottom:2px solid var(--bg3)}
+.vocab-table td{padding:8px 12px;border-bottom:1px solid var(--bg3);font-size:0.9rem}
+.vocab-table tr:hover{background:var(--bg2)}
+
+ruby{ruby-position:over}
+ruby rt{font-size:0.55em;color:var(--red);font-weight:400}
+
+.audio-bar{
+  position:fixed;bottom:0;left:0;right:0;background:#fff;
+  border-top:1px solid var(--bg3);box-shadow:0 -2px 8px rgba(44,36,33,0.08);
+  padding:8px 16px;display:none;z-index:150;
+  align-items:center;gap:12px;
+}
+.audio-bar.visible{display:flex}
+.audio-bar .audio-title{font-size:0.85rem;font-weight:500;min-width:100px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.audio-bar .audio-controls{display:flex;align-items:center;gap:8px}
+.audio-bar .play-btn{font-size:1.4rem;padding:4px 8px;color:var(--red);cursor:pointer}
+.audio-bar .time-display{font-size:0.75rem;color:var(--ink3);font-family:var(--font-en);min-width:80px}
+.audio-bar .progress-bar{flex:1;height:4px;background:var(--bg3);border-radius:2px;cursor:pointer;position:relative}
+.audio-bar .progress-fill{height:100%;background:var(--red);border-radius:2px;width:0%;transition:width 0.1s linear}
+
+.sentence-line{padding:6px 8px;border-radius:4px;margin:2px 0;cursor:pointer;transition:background 0.2s}
+.sentence-line:hover{background:var(--bg2)}
+.sentence-line.active{background:#FFF3E0;border-left:3px solid var(--gold)}
+.sentence-line .play-time{font-size:0.7rem;color:var(--ink3);font-family:var(--font-en);margin-right:6px;cursor:pointer}
+.sentence-line .play-time:hover{color:var(--red)}
+
+.lyric-line{padding:8px 12px;margin:2px 0;border-radius:4px;cursor:pointer;transition:all 0.3s;font-size:1.05rem}
+.lyric-line:hover{background:var(--bg2)}
+.lyric-line.active{background:linear-gradient(90deg,#FFF3E0,#fff);font-size:1.15rem;font-weight:500;border-left:3px solid var(--gold)}
+
+.flashcard{
+  background:#fff;border-radius:var(--radius2);padding:40px;
+  min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  box-shadow:var(--shadow);cursor:pointer;transition:transform 0.4s;text-align:center;
+}
+.flashcard .fc-front{font-size:2.2rem;font-weight:700}
+.flashcard .fc-hint{font-size:0.85rem;color:var(--ink3);margin-top:8px}
+.flashcard .fc-back{display:none}
+.flashcard.flipped .fc-front{display:none}
+.flashcard.flipped .fc-back{display:block}
+.flashcard .fc-reading{font-size:1.6rem;color:var(--red);margin-bottom:8px}
+.flashcard .fc-meaning{font-size:1.2rem;color:var(--ink2)}
+.flashcard .fc-type{font-size:0.8rem;color:var(--ink3);margin-top:4px}
+.srs-buttons{display:flex;gap:12px;margin-top:20px;justify-content:center}
+.srs-btn{padding:10px 20px;border-radius:var(--radius);font-weight:500;font-size:0.9rem}
+.srs-again{background:#FFCDD2;color:#C62828}
+.srs-hard{background:#FFE0B2;color:#E65100}
+.srs-good{background:#C8E6C9;color:#2E7D32}
+.srs-easy{background:#B3E5FC;color:#0277BD}
+
+.quiz-option{
+  display:block;width:100%;text-align:left;padding:14px 18px;margin:8px 0;
+  background:#fff;border:2px solid var(--bg3);border-radius:var(--radius);
+  font-size:1rem;cursor:pointer;transition:all var(--transition);
+}
+.quiz-option:hover{border-color:var(--blue);background:var(--bg2)}
+.quiz-option.correct{border-color:var(--green);background:#E8F5E9}
+.quiz-option.wrong{border-color:var(--red);background:#FFEBEE}
+.quiz-progress{height:4px;background:var(--bg3);border-radius:2px;margin-bottom:20px}
+.quiz-progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width 0.3s}
+
+.novel-container{display:flex;gap:20px}
+.novel-sidebar{width:240px;flex-shrink:0}
+.novel-content{flex:1;min-width:0}
+.chapter-list{list-style:none}
+.chapter-item{
+  padding:10px 12px;cursor:pointer;border-radius:var(--radius);
+  font-size:0.85rem;margin:2px 0;transition:all var(--transition);
+}
+.chapter-item:hover{background:var(--bg2)}
+.chapter-item.active{background:var(--red);color:#fff;font-weight:500}
+.chapter-progress{width:100%;height:3px;background:var(--bg3);border-radius:2px;margin-top:4px}
+.chapter-progress-fill{height:100%;background:var(--green);border-radius:2px}
+.novel-text{font-size:1.05rem;line-height:2;text-align:justify}
+.novel-text p{margin-bottom:16px;text-indent:2em}
+.novel-page-v{
+  writing-mode:vertical-rl;text-orientation:mixed;
+  height:70vh;min-height:350px;width:100%;overflow:hidden;
+  padding:24px 20px;margin-bottom:20px;
+  border:1px solid var(--bg3);border-radius:var(--radius);
+  background:#FFFEF9;line-height:2.2;position:relative;
+}
+.novel-page-v p{text-indent:0;margin:0 6px 0 0;padding:0}
+.novel-page-v ruby rt{font-size:0.5em}
+.novel-page-v .page-label{
+  writing-mode:horizontal-tb;position:absolute;bottom:6px;left:10px;
+  font-size:0.7rem;color:var(--ink3);font-family:var(--font-en);
+}
+.novel-controls{display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.stat-card{background:#fff;border-radius:var(--radius);padding:16px;text-align:center;box-shadow:var(--shadow)}
+.stat-value{font-size:1.8rem;font-weight:700;color:var(--red)}
+.stat-label{font-size:0.75rem;color:var(--ink3)}
+.heatmap{display:flex;gap:2px;flex-wrap:wrap;margin:12px 0}
+.heatmap-cell{width:14px;height:14px;border-radius:2px;background:var(--bg3)}
+.heatmap-cell.l1{background:#C8E6C9}
+.heatmap-cell.l2{background:#81C784}
+.heatmap-cell.l3{background:#4CAF50}
+.heatmap-cell.l4{background:#2E7D32}
+
+.timeline{position:relative;padding-left:30px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--bg3)}
+.timeline-item{position:relative;margin-bottom:20px}
+.timeline-item::before{
+  content:'';position:absolute;left:-26px;top:6px;width:12px;height:12px;
+  border-radius:50%;background:var(--red);border:2px solid #fff;
+}
+.timeline-era{font-weight:600;color:var(--red);font-size:0.9rem}
+.timeline-year{font-size:0.75rem;color:var(--ink3);font-family:var(--font-en)}
+.timeline-desc{font-size:0.85rem;color:var(--ink2);margin-top:2px}
+
+.dest-card{background:#fff;border-radius:var(--radius2);overflow:hidden;box-shadow:var(--shadow)}
+.dest-header{background:var(--red);color:#fff;padding:14px 16px}
+.dest-header h3{color:#fff;margin:0}
+.dest-body{padding:14px 16px}
+.dest-body p{font-size:0.85rem;color:var(--ink2);margin-bottom:8px}
+
+.podcast-card{display:flex;align-items:center;gap:14px;background:#fff;padding:14px;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:10px}
+.podcast-icon{width:50px;height:50px;border-radius:var(--radius);background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.podcast-info h4{font-size:0.9rem;margin-bottom:2px}
+.podcast-info p{font-size:0.8rem;color:var(--ink3)}
+
+.tab-bar{display:flex;gap:0;border-bottom:2px solid var(--bg3);margin-bottom:16px}
+.tab{padding:8px 16px;font-size:0.85rem;color:var(--ink3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all var(--transition)}
+.tab.active{color:var(--red);border-bottom-color:var(--red);font-weight:500}
+
+.loading-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(250,246,240,0.9);display:flex;align-items:center;justify-content:center;
+  z-index:999;transition:opacity 0.5s;
+}
+.loading-overlay.hidden{opacity:0;pointer-events:none}
+.loading-spinner{text-align:center;color:var(--red)}
+.loading-spinner .spinner{font-size:2rem;animation:spin 1s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.back-btn{color:var(--ink3);font-size:0.85rem;margin-bottom:12px;display:inline-flex;align-items:center;gap:4px;cursor:pointer}
+.back-btn:hover{color:var(--red)}
+
+.grammar-content{line-height:1.9}
+.grammar-content h3{color:var(--red);margin:16px 0 8px}
+.grammar-content h4{color:var(--gold);margin:12px 0 6px}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .hamburger{display:block}
+  .main-inner{padding:60px 16px 100px}
+  .novel-container{flex-direction:column}
+  .novel-sidebar{width:100%}
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .grid-2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="logo">
+      <h1>日本語マスター</h1>
+      <small>Japanese Mastery</small>
+    </div>
+    <div class="nav-section">Learn</div>
+    <ul class="nav-list">
+      <li class="nav-item active" onclick="navigate('dashboard')"><span class="nav-icon">&#9673;</span>Dashboard</li>
+      <li class="nav-item" onclick="navigate('lessons')"><span class="nav-icon">&#35506;</span>Lessons</li>
+      <li class="nav-item" onclick="navigate('vocabulary')"><span class="nav-icon">&#23383;</span>Vocabulary</li>
+      <li class="nav-item" onclick="navigate('flashcards')"><span class="nav-icon">&#26413;</span>Flashcards</li>
+      <li class="nav-item" onclick="navigate('songs')"><span class="nav-icon">&#9835;</span>Songs</li>
+      <li class="nav-item" onclick="navigate('grammar')"><span class="nav-icon">&#25991;</span>Grammar</li>
+      <li class="nav-item" onclick="navigate('quiz')"><span class="nav-icon">&#21839;</span>Quiz</li>
+    </ul>
+    <div class="nav-section">Explore</div>
+    <ul class="nav-list">
+      <li class="nav-item" onclick="navigate('novel')"><span class="nav-icon">&#26412;</span>Novel</li>
+      <li class="nav-item" onclick="navigate('culture')"><span class="nav-icon">&#33457;</span>Culture</li>
+      <li class="nav-item" onclick="navigate('travel')"><span class="nav-icon">&#26053;</span>Travel</li>
+      <li class="nav-item" onclick="navigate('podcasts')"><span class="nav-icon">&#32884;</span>Podcasts</li>
+      <li class="nav-item" onclick="navigate('resources')"><span class="nav-icon">&#20855;</span>Resources</li>
+    </ul>
+  </nav>
+  <main class="main" id="main">
+    <button class="hamburger" id="hamburger" onclick="toggleSidebar()">&#9776;</button>
+    <div class="main-inner" id="content"></div>
+  </main>
+</div>
+<div class="audio-bar" id="audioBar">
+  <div class="audio-controls">
+    <span class="play-btn" onclick="togglePlay()">&#9654;</span>
+  </div>
+  <span class="audio-title" id="audioTitle"></span>
+  <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+  <div class="progress-bar" id="progressBar" onclick="seekAudio(event)">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+</div>
+<div class="loading-overlay" id="loading">
+  <div class="loading-spinner">
+    <div class="spinner">&#10022;</div>
+    <p>Loading...</p>
+  </div>
+</div>
+
+<script>
+// ===== CONFIGURATION =====
+const ASSET_BASE = 'assets/';
+const LESSONS_LIST = [
+  '初级01','初级02','初级03','初级04','初级05','初级06','初级07','初级08','初级09','初级10',
+  '初级11','初级12','初级13','初级14','初级15','初级16','初级17','初级18','初级19','初级20',
+  '初级21','初级22','初级23','初级24','初级25','初级26','初级27','初级28','初级29','初级30',
+  '初级31','初级32','初级33','初级34','初级35','初级36','初级37','初级38','初级39','初级40',
+  '初级41','初级42','初级43','初级44','初级45','初级46','初级47','初级48',
+  '中级01','中级02','中级03','中级04','中级05','中级06','中级07','中级08','中级09','中级10',
+  '中级11','中级12','中级13','中级14','中级15','中级16','中级17','中级18','中级19','中级20',
+  '中级21','中级22','中级23','中级24','中级25','中级26','中级27','中级28','中级29','中级30',
+  '中级31','中级32'
+];
+const SONGS_LIST = [
+  '時代','糸','銀の龍の背に乗って','世界が終るまでは','男はつらいよ','ラヴ・イズ・オーヴァー',
+  '恋人がサンタクロース','世界でいちばん熱い夏','愛人','青い珊瑚礁','クリスマス・イヴ',
+  'チェリー','空も飛べるはず','プラスティック・ラブ','真夜中のドア〜stay with me',
+  'DAN DAN 心魅かれてく','揺れる想い','川の流れのように','时の流れに身をまかせ',
+  '雪の華','僕が死のうと思ったのは','島人ぬ宝'
+];
+
+// ===== STATE =====
+const state = {
+  module: 'dashboard',
+  audio: null,
+  audioTitle: '',
+  allVocab: [],
+  ZHUYIN: {},
+  novelChapters: [],
+  novelChapter: 0,
+  lessonCache: {},
+  songCache: {},
+  srs: JSON.parse(localStorage.getItem('jm_srs') || '{}'),
+  studyLog: JSON.parse(localStorage.getItem('jm_study') || '{}'),
+  quizState: null,
+  fcDeck: [],
+  fcIndex: 0,
+  fcFlipped: false,
+  vocabFilter: { jlpt: 'all', type: 'all', search: '' },
+  vocabPage: 0,
+};
+
+function saveState() {
+  localStorage.setItem('jm_srs', JSON.stringify(state.srs));
+  localStorage.setItem('jm_study', JSON.stringify(state.studyLog));
+  localStorage.setItem('jm_last_module', state.module);
+}
+
+// ===== DATA LOADING =====
+async function loadZhuyin() {
+  try {
+    const res = await fetch(ASSET_BASE + 'zhuyin.txt');
+    const text = await res.text();
+    text.split('\n').forEach(line => {
+      const parts = line.split('|');
+      if (parts.length === 2 && parts[0].trim() && parts[1].trim()) {
+        state.ZHUYIN[parts[0].trim()] = parts[1].trim();
+      }
+    });
+  } catch(e) { console.warn('Could not load zhuyin:', e); }
+}
+
+async function loadVocabulary() {
+  try {
+    const res = await fetch('vocabulary');
+    const text = await res.text();
+    let lesson = 0;
+    let inExpr = false;
+    let buffer = '';
+    const lines = text.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) { buffer = ''; continue; }
+      const lm = line.match(/^第(\d+)课$/);
+      if (lm) { lesson = parseInt(lm[1]); inExpr = false; buffer = ''; continue; }
+      if (line.startsWith('----')) { inExpr = true; buffer = ''; continue; }
+      if (inExpr) continue;
+      const full = buffer ? buffer + ' ' + line : line;
+      const tm = full.match(/^(.+)\s*〔(.+?)〕\s*(.+)$/);
+      if (tm) {
+        const rk = tm[1].trim();
+        const km = rk.match(/^(.+?)（(.+?)）/);
+        state.allVocab.push({
+          reading: km ? km[1].trim() : rk,
+          kanji: km ? km[2] : '',
+          type: tm[2],
+          meaning: tm[3].trim(),
+          lesson,
+          jlpt: lesson <= 12 ? 'N5' : lesson <= 24 ? 'N4' : lesson <= 36 ? 'N3' : 'N2'
+        });
+        buffer = '';
+      } else {
+        buffer = full;
+      }
+    }
+  } catch(e) { console.warn('Could not load vocabulary:', e); }
+}
+
+async function loadLesson(lessonId) {
+  if (state.lessonCache[lessonId]) return state.lessonCache[lessonId];
+  const isChuji = lessonId.startsWith('初级');
+  const num = lessonId.replace(/[^0-9]/g, '');
+  const dir = isChuji ? 'chuji' : 'zhongji';
+  const base = ASSET_BASE + dir + '/lesson' + num;
+  const lesson = { id: lessonId, isChuji, num, sentences: [], vocab: [], notes: '', audioPath: base + '.mp3', vocAudioPath: base + '_voc.mp3' };
+  try {
+    const textRes = await fetch(base + '.txt');
+    const text = await textRes.text();
+    text.split('\n').forEach(line => {
+      if (!line.trim()) return;
+      const parts = line.split('|');
+      if (parts.length >= 3) {
+        const time = parseFloat(parts[parts.length - 2]) || 0;
+        const dur = parseFloat(parts[parts.length - 1]) || 0;
+        if (isChuji) {
+          lesson.sentences.push({ text: parts[0], kanjiList: parts[1] || '', time, duration: dur });
+        } else {
+          lesson.sentences.push({ text: parts[0], kanjiList: '', time, duration: dur });
+        }
+      }
+    });
+  } catch(e) {}
+  try {
+    const vocRes = await fetch(base + '_voc.txt');
+    const vocText = await vocRes.text();
+    vocText.split('\n').forEach(line => {
+      if (!line.trim()) return;
+      const parts = line.split('|');
+      if (parts.length >= 1) {
+        lesson.vocab.push({
+          text: parts[0],
+          time: parts.length >= 3 ? parseFloat(parts[1]) || 0 : 0,
+          duration: parts.length >= 3 ? parseFloat(parts[2]) || 0 : 0
+        });
+      }
+    });
+  } catch(e) {}
+  try {
+    const notesRes = await fetch(base + '_notes.md');
+    if (notesRes.ok) lesson.notes = await notesRes.text();
+  } catch(e) {}
+  state.lessonCache[lessonId] = lesson;
+  return lesson;
+}
+
+async function loadSong(name) {
+  if (state.songCache[name]) return state.songCache[name];
+  const song = { name, lyrics: [], audioPath: ASSET_BASE + 'songs/' + encodeURIComponent(name) + '.ogg' };
+  try {
+    const res = await fetch(ASSET_BASE + 'songs/' + encodeURIComponent(name) + '.lyrics');
+    const text = await res.text();
+    text.split('\n').forEach(line => {
+      const m = line.match(/^\[(\d+):(\d+)\.(\d+)\](.*)$/);
+      if (m) {
+        const time = parseInt(m[1]) * 60 + parseInt(m[2]) + parseInt(m[3]) / 100;
+        const rest = m[4];
+        const parts = rest.split('|');
+        song.lyrics.push({ time, jp: parts[0] || '', ann: parts[1] || '' });
+      }
+    });
+  } catch(e) {}
+  state.songCache[name] = song;
+  return song;
+}
+
+async function loadNovel() {
+  if (state.novelChapters.length > 0) return;
+  try {
+    const res = await fetch(ASSET_BASE + 'novel/chrysanthemum.txt');
+    const text = await res.text();
+    const lines = text.split('\n');
+    let current = null;
+    for (const line of lines) {
+      if (/^第.+章/.test(line) && line.length < 40) {
+        if (current) state.novelChapters.push(current);
+        current = { title: line.trim(), paragraphs: [], rawLines: [] };
+      } else if (current) {
+        current.rawLines.push(line);
+      }
+    }
+    if (current) state.novelChapters.push(current);
+    state.novelChapters.forEach(ch => {
+      let para = '';
+      ch.rawLines.forEach(line => {
+        if (line.trim() === '') {
+          if (para.trim()) ch.paragraphs.push(para.trim());
+          para = '';
+        } else {
+          para += line;
+        }
+      });
+      if (para.trim()) ch.paragraphs.push(para.trim());
+    });
+  } catch(e) { console.warn('Could not load novel:', e); }
+}
+
+// ===== FURIGANA =====
+function furigana(text, kanjiList) {
+  if (!text) return '';
+  let result = text.replace(/([一-龯々ヶ]+)\(([ぁ-んァ-ヴー]+)\)/g,
+    '<ruby>$1<rp>(</rp><rt>$2</rt><rp>)</rp></ruby>');
+  if (kanjiList) {
+    const kanji = kanjiList.split(',').filter(k => k.trim());
+    kanji.forEach(k => {
+      const reading = state.ZHUYIN[k.trim()];
+      if (reading && result.includes(k.trim()) && !result.includes('<ruby>' + k.trim())) {
+        result = result.replace(k.trim(), `<ruby>${k.trim()}<rp>(</rp><rt>${reading}</rt><rp>)</rp></ruby>`);
+      }
+    });
+  }
+  return result;
+}
+
+function furiganaSong(text, ann) {
+  if (!text) return '';
+  if (!ann) return text;
+  let result = text;
+  ann.split(',').forEach(a => {
+    const m = a.match(/(.+?)[\(（](.+?)[\)）]/);
+    if (m) {
+      const kanji = m[1];
+      const reading = m[2];
+      if (result.includes(kanji)) {
+        result = result.replace(kanji, `<ruby>${kanji}<rp>(</rp><rt>${reading}</rt><rp>)</rp></ruby>`);
+      }
+    }
+  });
+  return result;
+}
+
+function furiganaNovel(text) {
+  if (!text) return '';
+  // Sort entries longest-first for greedy matching (compounds before single kanji)
+  if (!state._zhuyinSorted) {
+    state._zhuyinSorted = Object.entries(state.ZHUYIN)
+      .filter(([k]) => /[一-龯々ヶ]/.test(k))
+      .sort((a, b) => b[0].length - a[0].length);
+  }
+  // Use placeholder tokens to prevent double-matching
+  let result = text;
+  const tokens = [];
+  for (const [k, v] of state._zhuyinSorted) {
+    if (!result.includes(k)) continue;
+    const token = `\x01${tokens.length}\x02`;
+    tokens.push(`<ruby>${k}<rp>(</rp><rt>${v}</rt><rp>)</rp></ruby>`);
+    result = result.split(k).join(token);
+  }
+  for (let i = 0; i < tokens.length; i++) {
+    result = result.split(`\x01${i}\x02`).join(tokens[i]);
+  }
+  return result;
+}
+
+// ===== AUDIO PLAYER =====
+// Track which audio URLs are known to be missing
+const _missingAudio = {};
+
+// Check if an audio URL exists (HEAD request, cached)
+async function audioExists(url) {
+  if (_missingAudio[url] !== undefined) return !_missingAudio[url];
+  try {
+    const r = await fetch(url, { method: 'HEAD' });
+    _missingAudio[url] = !r.ok;
+    return r.ok;
+  } catch(e) { _missingAudio[url] = true; return false; }
+}
+
+// Web Audio API context for precise clip playback (lessons/vocab)
+let audioCtx = null;
+const audioBuffers = {}; // cache: url -> AudioBuffer
+
+function ensureAudioCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function fetchAudioBuffer(url) {
+  if (_missingAudio[url]) return Promise.reject(new Error('Audio missing'));
+  if (audioBuffers[url]) return Promise.resolve(audioBuffers[url]);
+  return fetch(url).then(r => {
+    if (!r.ok) { _missingAudio[url] = true; throw new Error('Audio not found'); }
+    return r.arrayBuffer();
+  }).then(buf => {
+    ensureAudioCtx();
+    return audioCtx.decodeAudioData(buf);
+  }).then(decoded => {
+    audioBuffers[url] = decoded;
+    return decoded;
+  });
+}
+
+// Play a precise clip using Web Audio API (for sentences/vocab)
+function playClip(audioPath, title, when, duration) {
+  if (_missingAudio[audioPath]) return;
+  ensureAudioCtx();
+  // Stop any previous clip
+  if (state.clipSource) { try { state.clipSource.stop(); } catch(e){} }
+  state.clipSource = null;
+
+  // Also load into <audio> for progress bar display
+  if (!state.audio || state.audioTitle !== title) {
+    loadAudio(audioPath, title);
+  }
+
+  fetchAudioBuffer(audioPath).then(buffer => {
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioCtx.destination);
+    state.clipSource = source;
+    if (when && duration && duration > 0) {
+      source.start(0, when, duration);
+    } else if (when) {
+      source.start(0, when);
+    } else {
+      source.start(0);
+    }
+    // Update audio bar to show position
+    if (state.audio && state.audio.readyState >= 2) {
+      state.audio.currentTime = when || 0;
+    }
+    document.querySelector('.play-btn').innerHTML = '&#9646;&#9646;';
+  }).catch(err => {});
+}
+
+function loadAudio(src, title) {
+  if (_missingAudio[src]) return;
+  if (state.audio) { state.audio.pause(); state.audio.removeEventListener('timeupdate', onTimeUpdate); state.audio.removeEventListener('ended', onAudioEnded); }
+  state.audio = new Audio(src);
+  state.audioTitle = title;
+  document.getElementById('audioTitle').textContent = title;
+  document.getElementById('audioBar').classList.add('visible');
+  document.getElementById('progressFill').style.width = '0%';
+  state.audio.addEventListener('timeupdate', onTimeUpdate);
+  state.audio.addEventListener('ended', onAudioEnded);
+  state.audio.addEventListener('error', function() {
+    _missingAudio[src] = true;
+    document.getElementById('audioBar').classList.remove('visible');
+    state.audio = null;
+    state.audioTitle = '';
+  });
+  // Pre-fetch into Web Audio buffer cache
+  fetchAudioBuffer(src).catch(function(){});
+}
+
+function togglePlay() {
+  if (!state.audio) return;
+  // Stop any clip playback
+  if (state.clipSource) { try { state.clipSource.stop(); } catch(e){} state.clipSource = null; }
+  state.playEndTime = null;
+  if (state.audio.paused) {
+    state.audio.play();
+    document.querySelector('.play-btn').innerHTML = '&#9646;&#9646;';
+  } else {
+    state.audio.pause();
+    document.querySelector('.play-btn').innerHTML = '&#9654;';
+  }
+}
+
+function seekToTime(time) {
+  if (!state.audio) return;
+  // Stop any clip playback
+  if (state.clipSource) { try { state.clipSource.stop(); } catch(e){} state.clipSource = null; }
+  state.playEndTime = null;
+  state.audio.currentTime = time;
+  if (state.audio.paused) state.audio.play();
+  document.querySelector('.play-btn').innerHTML = '&#9646;&#9646;';
+}
+
+// Play a sentence/vocab clip precisely, or seek song audio
+function playFromTime(audioPath, title, time, duration) {
+  ensureAudioCtx();
+  if (duration && duration > 0) {
+    // Sentence or vocab: use Web Audio API for precise timing
+    playClip(audioPath, title, time, duration);
+  } else {
+    // Song lyrics: use <audio> element for continuous playback
+    // Reset scroll tracking so auto-scroll resumes from clicked line
+    _userScrolledAway = false;
+    _lastScrolledLyricTime = null;
+    if (!state.audio || state.audioTitle !== title) {
+      loadAudio(audioPath, title);
+    }
+    // Stop any clip playback
+    if (state.clipSource) { try { state.clipSource.stop(); } catch(e){} state.clipSource = null; }
+    const audio = state.audio;
+    if (audio.readyState >= 2) {
+      audio.currentTime = time;
+      audio.play().catch(function(){});
+      document.querySelector('.play-btn').innerHTML = '&#9646;&#9646;';
+    } else {
+      state._pendingSeek = { time };
+      function doSeek() {
+        if (state.audio !== audio || !state._pendingSeek) return;
+        state._pendingSeek = null;
+        audio.currentTime = time;
+        audio.play().catch(function(){});
+        document.querySelector('.play-btn').innerHTML = '&#9646;&#9646;';
+      }
+      audio.addEventListener('canplay', doSeek, { once: true });
+      audio.addEventListener('loadeddata', doSeek, { once: true });
+    }
+  }
+}
+
+function seekAudio(e) {
+  if (!state.audio) return;
+  const bar = document.getElementById('progressBar');
+  const rect = bar.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  state.audio.currentTime = pct * state.audio.duration;
+}
+
+function formatTime(s) {
+  if (isNaN(s)) return '0:00';
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+function onTimeUpdate() {
+  if (!state.audio) return;
+  const cur = state.audio.currentTime;
+  const dur = state.audio.duration || 1;
+  document.getElementById('progressFill').style.width = (cur / dur * 100) + '%';
+  document.getElementById('timeDisplay').textContent = formatTime(cur) + ' / ' + formatTime(dur);
+  highlightCurrentLine(cur);
+}
+
+function onAudioEnded() {
+  document.querySelector('.play-btn').innerHTML = '&#9654;';
+}
+
+// Track the last lyric line we auto-scrolled to, so we only scroll on line change
+let _lastScrolledLyricTime = null;
+let _userScrolledAway = false;
+let _userScrollTimer = null;
+
+// Detect manual scrolling — pause auto-scroll briefly
+document.addEventListener('wheel', function() { _userScrolledAway = true; clearTimeout(_userScrollTimer); _userScrollTimer = setTimeout(function(){ _userScrolledAway = false; }, 5000); }, { passive: true });
+document.addEventListener('touchmove', function() { _userScrolledAway = true; clearTimeout(_userScrollTimer); _userScrollTimer = setTimeout(function(){ _userScrolledAway = false; }, 5000); }, { passive: true });
+
+function highlightCurrentLine(time) {
+  const isVocab = state.audioTitle && state.audioTitle.endsWith(' Vocab');
+  const isSong = !isVocab && document.querySelector('.lyric-line');
+  const selector = isVocab ? '.vocab-table tr[data-time]' : '.sentence-line,.lyric-line';
+  let activeEl = null;
+  let activeTime = null;
+  document.querySelectorAll(selector).forEach(el => {
+    const t = parseFloat(el.dataset.time);
+    const d = parseFloat(el.dataset.duration || 999);
+    if (time >= t && time < t + d) {
+      el.classList.add('active');
+      activeEl = el;
+      activeTime = t;
+    } else {
+      el.classList.remove('active');
+    }
+  });
+  // For songs: auto-scroll only when the active line changes and user hasn't scrolled
+  if (isSong && activeEl && activeTime !== _lastScrolledLyricTime && !_userScrolledAway) {
+    _lastScrolledLyricTime = activeTime;
+    activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+// ===== NAVIGATION =====
+function navigate(mod) {
+  state.module = mod;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => {
+    if (el.getAttribute('onclick') === `navigate('${mod}')`) el.classList.add('active');
+  });
+  if (window.innerWidth <= 768) {
+    document.getElementById('sidebar').classList.remove('open');
+  }
+  saveState();
+  logStudy();
+  renderModule();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+function renderModule() {
+  const c = document.getElementById('content');
+  switch(state.module) {
+    case 'dashboard': renderDashboard(c); break;
+    case 'lessons': renderLessons(c); break;
+    case 'vocabulary': renderVocabulary(c); break;
+    case 'flashcards': renderFlashcards(c); break;
+    case 'songs': renderSongs(c); break;
+    case 'grammar': renderGrammar(c); break;
+    case 'quiz': renderQuiz(c); break;
+    case 'novel': renderNovel(c); break;
+    case 'culture': renderCulture(c); break;
+    case 'travel': renderTravel(c); break;
+    case 'podcasts': renderPodcasts(c); break;
+    case 'resources': renderResources(c); break;
+    default: renderDashboard(c);
+  }
+}
+
+// ===== STUDY TRACKING =====
+function logStudy() {
+  const today = new Date().toISOString().split('T')[0];
+  if (!state.studyLog[today]) state.studyLog[today] = 0;
+  state.studyLog[today]++;
+  saveState();
+}
+
+function getStreak() {
+  let streak = 0;
+  const d = new Date();
+  while (true) {
+    const key = d.toISOString().split('T')[0];
+    if (state.studyLog[key]) { streak++; d.setDate(d.getDate() - 1); }
+    else break;
+  }
+  return streak;
+}
+
+function getHeatmapData() {
+  const data = [];
+  const d = new Date();
+  for (let i = 89; i >= 0; i--) {
+    const dd = new Date(d);
+    dd.setDate(dd.getDate() - i);
+    const key = dd.toISOString().split('T')[0];
+    const count = state.studyLog[key] || 0;
+    data.push({ date: key, count });
+  }
+  return data;
+}
+
+// ===== SRS SYSTEM =====
+const SRS_INTERVALS = [60, 600, 3600, 86400, 259200, 604800, 2592000];
+
+function getSRSCard(vocabId) {
+  return state.srs[vocabId] || { level: 0, nextReview: 0, reviews: 0 };
+}
+
+function reviewSRS(vocabId, quality) {
+  const card = getSRSCard(vocabId);
+  if (quality === 'again') { card.level = 0; }
+  else if (quality === 'hard') { card.level = Math.max(0, card.level); }
+  else if (quality === 'good') { card.level = Math.min(card.level + 1, SRS_INTERVALS.length - 1); }
+  else if (quality === 'easy') { card.level = Math.min(card.level + 2, SRS_INTERVALS.length - 1); }
+  card.nextReview = Date.now() + SRS_INTERVALS[card.level] * 1000;
+  card.reviews = (card.reviews || 0) + 1;
+  state.srs[vocabId] = card;
+  saveState();
+}
+
+function getDueCards() {
+  const now = Date.now();
+  return state.allVocab.filter((v, i) => {
+    const card = state.srs[i];
+    return !card || card.nextReview <= now;
+  });
+}
+
+// ===== MODULE: DASHBOARD =====
+function renderDashboard(c) {
+  const streak = getStreak();
+  const totalVocab = state.allVocab.length;
+  const reviewed = Object.keys(state.srs).length;
+  const due = getDueCards().length;
+  const heatmap = getHeatmapData();
+  const jlptStats = { N5: { total: 0, known: 0 }, N4: { total: 0, known: 0 }, N3: { total: 0, known: 0 }, N2: { total: 0, known: 0 } };
+  state.allVocab.forEach((v, i) => {
+    if (jlptStats[v.jlpt]) {
+      jlptStats[v.jlpt].total++;
+      if (state.srs[i] && state.srs[i].level >= 2) jlptStats[v.jlpt].known++;
+    }
+  });
+
+  c.innerHTML = `
+    <h2>Dashboard</h2>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-value">${streak}</div><div class="stat-label">Day Streak</div></div>
+      <div class="stat-card"><div class="stat-value">${totalVocab}</div><div class="stat-label">Total Words</div></div>
+      <div class="stat-card"><div class="stat-value">${reviewed}</div><div class="stat-label">Reviewed</div></div>
+      <div class="stat-card"><div class="stat-value" style="color:var(--gold)">${due}</div><div class="stat-label">Due for Review</div></div>
+      <div class="stat-card"><div class="stat-value">${LESSONS_LIST.length}</div><div class="stat-label">Lessons</div></div>
+      <div class="stat-card"><div class="stat-value">${SONGS_LIST.length}</div><div class="stat-label">Songs</div></div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <h3>Study Activity (90 days)</h3>
+      <div class="heatmap">${heatmap.map(d => {
+        const lvl = d.count === 0 ? '' : d.count < 5 ? 'l1' : d.count < 15 ? 'l2' : d.count < 30 ? 'l3' : 'l4';
+        return `<div class="heatmap-cell ${lvl}" title="${d.date}: ${d.count} actions"></div>`;
+      }).join('')}</div>
+    </div>
+
+    <div class="card">
+      <h3>JLPT Progress</h3>
+      ${Object.entries(jlptStats).map(([level, s]) => {
+        const pct = s.total > 0 ? Math.round(s.known / s.total * 100) : 0;
+        return `<div style="margin:8px 0">
+          <div style="display:flex;justify-content:space-between;font-size:0.85rem"><span>${level}</span><span>${s.known}/${s.total} (${pct}%)</span></div>
+          <div style="height:6px;background:var(--bg3);border-radius:3px;margin-top:4px"><div style="height:100%;width:${pct}%;background:var(--green);border-radius:3px"></div></div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="card">
+      <h3>Quick Start</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="navigate('flashcards')">Review Flashcards (${due} due)</button>
+        <button class="btn btn-secondary" onclick="navigate('lessons')">Continue Lessons</button>
+        <button class="btn btn-gold" onclick="navigate('quiz')">Take a Quiz</button>
+        <button class="btn btn-green" onclick="navigate('novel')">Read Novel</button>
+      </div>
+    </div>
+  `;
+}
+
+// ===== MODULE: LESSONS =====
+function renderLessons(c) {
+  const chuji = LESSONS_LIST.filter(l => l.startsWith('初级'));
+  const zhongji = LESSONS_LIST.filter(l => l.startsWith('中级'));
+
+  c.innerHTML = `
+    <h2>Lessons</h2>
+    <div class="tab-bar">
+      <div class="tab active" onclick="showLessonTab('chuji',this)">初級 (${chuji.length})</div>
+      <div class="tab" onclick="showLessonTab('zhongji',this)">中級 (${zhongji.length})</div>
+    </div>
+    <div id="lessonTabContent">
+      <div class="grid grid-3" id="lessonGrid">
+        ${chuji.map((l, i) => `
+          <div class="lesson-card" onclick="openLesson('${l}')">
+            <div class="lesson-num">${l.startsWith('初级') ? 'Beginner' : 'Intermediate'} ${l.replace(/[^0-9]/g,'')}</div>
+            <div class="lesson-title">${l}</div>
+            <span class="badge badge-${getLessonJLPT(i+1).toLowerCase()}">${getLessonJLPT(i+1)}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function showLessonTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const lessons = tab === 'chuji' ? LESSONS_LIST.filter(l => l.startsWith('初级')) : LESSONS_LIST.filter(l => l.startsWith('中级'));
+  document.getElementById('lessonGrid').innerHTML = lessons.map((l, i) => {
+    const num = parseInt(l.replace(/[^0-9]/g,''));
+    return `
+      <div class="lesson-card" onclick="openLesson('${l}')">
+        <div class="lesson-num">${tab === 'chuji' ? 'Beginner' : 'Intermediate'} ${num}</div>
+        <div class="lesson-title">${l}</div>
+        <span class="badge badge-${getLessonJLPT(tab === 'chuji' ? num : 49).toLowerCase()}">${getLessonJLPT(tab === 'chuji' ? num : 49)}</span>
+      </div>`;
+  }).join('');
+}
+
+function getLessonJLPT(n) {
+  if (n <= 12) return 'N5';
+  if (n <= 24) return 'N4';
+  if (n <= 36) return 'N3';
+  return 'N2';
+}
+
+async function openLesson(id) {
+  const c = document.getElementById('content');
+  c.innerHTML = '<div class="card"><div class="loading-spinner"><div class="spinner">&#10022;</div><p>Loading lesson...</p></div></div>';
+  const lesson = await loadLesson(id);
+  const isChuji = lesson.isChuji;
+
+  // Check if audio files exist before showing audio controls
+  const hasLessonAudio = await audioExists(lesson.audioPath);
+  const hasVocAudio = lesson.vocab.length ? await audioExists(lesson.vocAudioPath) : false;
+
+  // Pre-load lesson audio if it exists
+  if (hasLessonAudio) loadAudio(lesson.audioPath, id);
+
+  let html = `<div class="back-btn" onclick="navigate('lessons')">&larr; Back to Lessons</div>`;
+  html += `<h2>${id}</h2>`;
+  if (hasLessonAudio || hasVocAudio) {
+    html += `<div style="display:flex;gap:8px;margin-bottom:16px">
+      ${hasLessonAudio ? `<button class="btn btn-primary" onclick="togglePlay()">Play Lesson Audio</button>` : ''}
+      ${hasVocAudio ? `<button class="btn btn-secondary" onclick="loadAudio('${lesson.vocAudioPath}','${id} Vocab');togglePlay()">Play Vocab Audio</button>` : ''}
+    </div>`;
+  }
+
+  const escapedAudio = lesson.audioPath.replace(/'/g,"\\'");
+  const escapedVocAudio = lesson.vocAudioPath.replace(/'/g,"\\'");
+  const escapedId = id.replace(/'/g,"\\'");
+
+  if (lesson.sentences.length) {
+    html += `<div class="card"><h3>Text</h3>`;
+    lesson.sentences.forEach(s => {
+      const display = isChuji ? furigana(s.text, s.kanjiList) : furigana(s.text, '');
+      html += `<div class="sentence-line" data-time="${s.time}" data-duration="${s.duration}" onclick="playFromTime('${escapedAudio}','${escapedId}',${s.time},${s.duration})">
+        <span class="play-time">${formatTime(s.time)}</span>${display}
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  if (lesson.vocab.length) {
+    html += `<div class="card"><h3>Vocabulary</h3><table class="vocab-table"><thead><tr><th>Word</th><th>Time</th></tr></thead><tbody>`;
+    lesson.vocab.forEach(v => {
+      const rowAttrs = v.time ? `data-time="${v.time}" data-duration="${v.duration}" style="cursor:pointer" onclick="playFromTime('${escapedVocAudio}','${escapedId} Vocab',${v.time},${v.duration})"` : '';
+      html += `<tr ${rowAttrs}>
+        <td>${furigana(v.text, '')}</td>
+        <td>${v.time ? `<span class="play-time">${formatTime(v.time)}</span>` : ''}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+  }
+
+  if (lesson.notes) {
+    html += `<div class="card grammar-content"><h3>Grammar Notes</h3>${renderMarkdown(lesson.notes)}</div>`;
+  }
+
+  c.innerHTML = html;
+}
+
+function renderMarkdown(md) {
+  return md
+    .replace(/####\s*(.+)/g, '<h4>$1</h4>')
+    .replace(/###\s*(.+)/g, '<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>')
+    .replace(/^/, '<p>').replace(/$/, '</p>');
+}
+
+// ===== MODULE: VOCABULARY =====
+function renderVocabulary(c) {
+  const types = [...new Set(state.allVocab.map(v => v.type))].sort();
+
+  let html = `<h2>Vocabulary (${state.allVocab.length} words)</h2>`;
+  html += `<div class="search-bar">
+    <input type="text" id="vocabSearch" placeholder="Search (Japanese, kanji, or meaning)..." oninput="filterVocab()" value="${state.vocabFilter.search}">
+    <select id="vocabType" onchange="filterVocab()">
+      <option value="all">All Types</option>
+      ${types.map(t => `<option value="${t}" ${state.vocabFilter.type === t ? 'selected' : ''}>${t}</option>`).join('')}
+    </select>
+  </div>`;
+  html += `<div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+    ${['all','N5','N4','N3','N2'].map(j => `<button class="filter-btn ${state.vocabFilter.jlpt === j ? 'active' : ''}" onclick="setJLPTFilter('${j}')">${j === 'all' ? 'All Levels' : j}</button>`).join('')}
+  </div>`;
+  html += `<div id="vocabList"></div>`;
+  c.innerHTML = html;
+  filterVocab();
+}
+
+function setJLPTFilter(j) {
+  state.vocabFilter.jlpt = j;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.textContent === (j === 'all' ? 'All Levels' : j)));
+  filterVocab();
+}
+
+function filterVocab() {
+  const search = (document.getElementById('vocabSearch')?.value || '').toLowerCase();
+  const type = document.getElementById('vocabType')?.value || 'all';
+  const jlpt = state.vocabFilter.jlpt;
+  state.vocabFilter.search = search;
+  state.vocabFilter.type = type;
+
+  let filtered = state.allVocab.filter(v => {
+    if (jlpt !== 'all' && v.jlpt !== jlpt) return false;
+    if (type !== 'all' && v.type !== type) return false;
+    if (search && !v.reading.toLowerCase().includes(search) && !v.kanji.toLowerCase().includes(search) && !v.meaning.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  const PAGE_SIZE = 100;
+  const total = filtered.length;
+  const page = state.vocabPage || 0;
+  const paged = filtered.slice(0, (page + 1) * PAGE_SIZE);
+
+  let html = `<div style="margin-bottom:8px;font-size:0.85rem;color:var(--ink3)">Showing ${paged.length} of ${total} words</div>`;
+  html += `<table class="vocab-table"><thead><tr><th>Word</th><th>Reading</th><th>Type</th><th>Meaning</th><th>Lesson</th><th>JLPT</th></tr></thead><tbody>`;
+  paged.forEach(v => {
+    html += `<tr>
+      <td>${v.kanji ? `<ruby>${v.kanji}<rp>(</rp><rt>${v.reading}</rt><rp>)</rp></ruby>` : v.reading}</td>
+      <td style="font-size:0.85rem;color:var(--ink3)">${v.reading}</td>
+      <td><span class="badge" style="background:var(--bg2)">${v.type}</span></td>
+      <td>${v.meaning}</td>
+      <td style="font-size:0.8rem;color:var(--ink3)">${v.lesson}</td>
+      <td><span class="badge badge-${v.jlpt.toLowerCase()}">${v.jlpt}</span></td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+  if (paged.length < total) {
+    html += `<div style="text-align:center;margin-top:12px"><button class="btn btn-secondary" onclick="state.vocabPage++;filterVocab()">Load more (${total - paged.length} remaining)</button></div>`;
+  }
+  document.getElementById('vocabList').innerHTML = html;
+}
+
+// ===== MODULE: FLASHCARDS =====
+function renderFlashcards(c) {
+  const due = getDueCards();
+  if (state.fcDeck.length === 0 || state.fcIndex >= state.fcDeck.length) {
+    c.innerHTML = `
+      <h2>Flashcards</h2>
+      <div class="card">
+        <p style="margin-bottom:12px">${due.length > 0 ? `${due.length} cards due for review.` : 'No cards due! Well done!'}</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="startFlashcards('due')">Review Due (${due.length})</button>
+          <button class="btn btn-secondary" onclick="startFlashcards('n5')">N5 Words</button>
+          <button class="btn btn-secondary" onclick="startFlashcards('n4')">N4 Words</button>
+          <button class="btn btn-secondary" onclick="startFlashcards('n3')">N3 Words</button>
+          <button class="btn btn-secondary" onclick="startFlashcards('n2')">N2 Words</button>
+          <button class="btn btn-gold" onclick="startFlashcards('all')">All Words</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const idx = state.fcDeck[state.fcIndex];
+  const v = state.allVocab[idx];
+  const progress = `${state.fcIndex + 1} / ${state.fcDeck.length}`;
+
+  c.innerHTML = `
+    <h2>Flashcards <span style="font-size:0.85rem;color:var(--ink3);font-weight:400">${progress}</span></h2>
+    <div class="quiz-progress"><div class="quiz-progress-fill" style="width:${(state.fcIndex + 1) / state.fcDeck.length * 100}%"></div></div>
+    <div class="flashcard ${state.fcFlipped ? 'flipped' : ''}" onclick="flipCard()">
+      <div class="fc-front">
+        <div>${v.kanji || v.reading}</div>
+        <div class="fc-hint">Click to reveal</div>
+      </div>
+      <div class="fc-back">
+        <div class="fc-reading">${v.kanji ? `<ruby>${v.kanji}<rp>(</rp><rt>${v.reading}</rt><rp>)</rp></ruby>` : v.reading}</div>
+        <div class="fc-meaning">${v.meaning}</div>
+        <div class="fc-type">${v.type} | Lesson ${v.lesson} | ${v.jlpt}</div>
+      </div>
+    </div>
+    ${state.fcFlipped ? `
+      <div class="srs-buttons">
+        <button class="srs-btn srs-again" onclick="rateCard('again')">Again</button>
+        <button class="srs-btn srs-hard" onclick="rateCard('hard')">Hard</button>
+        <button class="srs-btn srs-good" onclick="rateCard('good')">Good</button>
+        <button class="srs-btn srs-easy" onclick="rateCard('easy')">Easy</button>
+      </div>
+    ` : ''}
+  `;
+}
+
+function startFlashcards(mode) {
+  let indices = [];
+  if (mode === 'due') {
+    const now = Date.now();
+    indices = state.allVocab.map((v, i) => i).filter(i => !state.srs[i] || state.srs[i].nextReview <= now);
+  } else if (mode === 'all') {
+    indices = state.allVocab.map((v, i) => i);
+  } else {
+    indices = state.allVocab.map((v, i) => i).filter(i => state.allVocab[i].jlpt === mode.toUpperCase());
+  }
+  state.fcDeck = shuffle(indices).slice(0, 50);
+  state.fcIndex = 0;
+  state.fcFlipped = false;
+  renderFlashcards(document.getElementById('content'));
+}
+
+function flipCard() {
+  state.fcFlipped = !state.fcFlipped;
+  renderFlashcards(document.getElementById('content'));
+}
+
+function rateCard(quality) {
+  const idx = state.fcDeck[state.fcIndex];
+  reviewSRS(idx, quality);
+  state.fcIndex++;
+  state.fcFlipped = false;
+  renderFlashcards(document.getElementById('content'));
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ===== MODULE: SONGS =====
+function renderSongs(c) {
+  c.innerHTML = `
+    <h2>Songs (${SONGS_LIST.length})</h2>
+    <div class="grid grid-3">
+      ${SONGS_LIST.map(s => `
+        <div class="song-card" onclick="openSong('${s.replace(/'/g,"\\'")}')">
+          <div class="song-title">${s}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+async function openSong(name) {
+  const c = document.getElementById('content');
+  c.innerHTML = '<div class="card"><div class="loading-spinner"><div class="spinner">&#10022;</div><p>Loading song...</p></div></div>';
+  const song = await loadSong(name);
+
+  // Check if audio exists before showing controls
+  const hasSongAudio = await audioExists(song.audioPath);
+  if (hasSongAudio) loadAudio(song.audioPath, name);
+
+  let html = `<div class="back-btn" onclick="navigate('songs')">&larr; Back to Songs</div>`;
+  html += `<h2>${name}</h2>`;
+  if (hasSongAudio) {
+    html += `<button class="btn btn-primary" onclick="togglePlay()" style="margin-bottom:16px">Play</button>`;
+  }
+
+  const escapedSongAudio = song.audioPath.replace(/'/g,"\\'");
+  const escapedSongName = name.replace(/'/g,"\\'");
+  if (song.lyrics.length) {
+    html += `<div class="card">`;
+    song.lyrics.forEach(l => {
+      if (!l.jp.trim()) return;
+      const display = furiganaSong(l.jp, l.ann);
+      html += `<div class="lyric-line" data-time="${l.time}" data-duration="10" onclick="playFromTime('${escapedSongAudio}','${escapedSongName}',${l.time})">${display}</div>`;
+    });
+    html += `</div>`;
+  } else {
+    html += `<div class="card"><p>No lyrics data available.</p></div>`;
+  }
+
+  c.innerHTML = html;
+}
+
+// ===== MODULE: GRAMMAR =====
+function renderGrammar(c) {
+  const noteLessons = [];
+  for (let i = 1; i <= 18; i++) noteLessons.push({ id: `初级${String(i).padStart(2,'0')}`, label: `初級 ${i}` });
+  for (let i = 1; i <= 3; i++) noteLessons.push({ id: `中级${String(i).padStart(2,'0')}`, label: `中級 ${i}` });
+
+  c.innerHTML = `
+    <h2>Grammar Notes</h2>
+    <p style="color:var(--ink3);font-size:0.85rem;margin-bottom:16px">Grammar notes are available for the following lessons:</p>
+    <div class="grid grid-3">
+      ${noteLessons.map(l => `
+        <div class="lesson-card" onclick="openGrammarLesson('${l.id}')">
+          <div class="lesson-title">${l.label}</div>
+          <div class="lesson-num">Grammar Notes</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+async function openGrammarLesson(id) {
+  const c = document.getElementById('content');
+  c.innerHTML = '<div class="card"><div class="loading-spinner"><div class="spinner">&#10022;</div></div></div>';
+  const lesson = await loadLesson(id);
+  let html = `<div class="back-btn" onclick="navigate('grammar')">&larr; Back to Grammar</div>`;
+  html += `<h2>${id} - Grammar Notes</h2>`;
+  if (lesson.notes) {
+    html += `<div class="card grammar-content">${renderMarkdown(lesson.notes)}</div>`;
+  } else {
+    html += `<div class="card"><p>No grammar notes available for this lesson.</p></div>`;
+  }
+  c.innerHTML = html;
+}
+
+// ===== MODULE: QUIZ =====
+function renderQuiz(c) {
+  if (!state.quizState) {
+    c.innerHTML = `
+      <h2>Quiz</h2>
+      <div class="card">
+        <h3>Choose Quiz Mode</h3>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+          <button class="btn btn-primary" onclick="startQuiz('meaning')">Meaning Quiz</button>
+          <button class="btn btn-secondary" onclick="startQuiz('reading')">Reading Quiz</button>
+          <button class="btn btn-gold" onclick="startQuiz('kanji')">Kanji Quiz</button>
+        </div>
+        <div style="margin-top:16px">
+          <h3>Filter by JLPT</h3>
+          <div style="display:flex;gap:6px;margin-top:8px">
+            ${['all','N5','N4','N3','N2'].map(j => `<button class="filter-btn ${j === 'all' ? 'active' : ''}" onclick="setQuizJLPT('${j}',this)">${j === 'all' ? 'All' : j}</button>`).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const qs = state.quizState;
+  const q = qs.questions[qs.current];
+  if (!q || qs.current >= qs.questions.length) {
+    const pct = Math.round(qs.correct / qs.questions.length * 100);
+    c.innerHTML = `
+      <h2>Quiz Complete!</h2>
+      <div class="card" style="text-align:center">
+        <div class="stat-value" style="font-size:3rem">${pct}%</div>
+        <p>${qs.correct} / ${qs.questions.length} correct</p>
+        <button class="btn btn-primary" onclick="state.quizState=null;renderQuiz(document.getElementById('content'))" style="margin-top:16px">Try Again</button>
+      </div>
+    `;
+    return;
+  }
+
+  c.innerHTML = `
+    <h2>Quiz <span style="font-size:0.85rem;color:var(--ink3);font-weight:400">${qs.current + 1} / ${qs.questions.length}</span></h2>
+    <div class="quiz-progress"><div class="quiz-progress-fill" style="width:${(qs.current + 1) / qs.questions.length * 100}%"></div></div>
+    <div class="card">
+      <p style="font-size:0.85rem;color:var(--ink3);margin-bottom:4px">${qs.mode === 'meaning' ? 'What does this word mean?' : qs.mode === 'reading' ? 'How do you read this?' : 'Which kanji is this?'}</p>
+      <div style="font-size:1.8rem;font-weight:700;margin-bottom:16px">${q.prompt}</div>
+      ${q.options.map((opt, i) => `
+        <button class="quiz-option" id="qopt${i}" onclick="checkQuizAnswer(${i})">${opt}</button>
+      `).join('')}
+    </div>
+  `;
+}
+
+let quizJLPT = 'all';
+function setQuizJLPT(j, el) {
+  quizJLPT = j;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function startQuiz(mode) {
+  let pool = state.allVocab.filter(v => v.kanji || mode === 'meaning');
+  if (quizJLPT !== 'all') pool = pool.filter(v => v.jlpt === quizJLPT);
+  if (pool.length < 4) { alert('Not enough words for quiz. Try a different filter.'); return; }
+  pool = shuffle(pool);
+  const questions = [];
+  for (let i = 0; i < Math.min(20, pool.length); i++) {
+    const correct = pool[i];
+    let prompt, answer;
+    if (mode === 'meaning') {
+      prompt = correct.kanji || correct.reading;
+      answer = correct.meaning;
+    } else if (mode === 'reading') {
+      prompt = correct.kanji || correct.reading;
+      answer = correct.reading;
+    } else {
+      prompt = correct.reading;
+      answer = correct.kanji || correct.reading;
+    }
+    const wrongs = shuffle(pool.filter(v => v !== correct)).slice(0, 3).map(v => {
+      if (mode === 'meaning') return v.meaning;
+      if (mode === 'reading') return v.reading;
+      return v.kanji || v.reading;
+    });
+    const options = shuffle([answer, ...wrongs]);
+    questions.push({ prompt, answer, options, correctIdx: options.indexOf(answer) });
+  }
+  state.quizState = { mode, questions, current: 0, correct: 0 };
+  renderQuiz(document.getElementById('content'));
+}
+
+function checkQuizAnswer(idx) {
+  const qs = state.quizState;
+  const q = qs.questions[qs.current];
+  document.getElementById('qopt' + idx).classList.add(idx === q.correctIdx ? 'correct' : 'wrong');
+  document.getElementById('qopt' + q.correctIdx).classList.add('correct');
+  if (idx === q.correctIdx) qs.correct++;
+  setTimeout(() => {
+    qs.current++;
+    renderQuiz(document.getElementById('content'));
+  }, 800);
+}
+
+// ===== MODULE: NOVEL READER =====
+function renderNovel(c) {
+  if (state.novelChapters.length === 0) {
+    c.innerHTML = `
+      <h2>Novel Reader</h2>
+      <div class="card">
+        <h3>菊と刀 (The Chrysanthemum and the Sword)</h3>
+        <p style="color:var(--ink2)">by Ruth Benedict (ルース・ベネディクト)</p>
+        <p style="margin-top:8px;font-size:0.85rem;color:var(--ink3)">A classic study of Japanese culture. Read it with furigana support and vocabulary lookup.</p>
+        <button class="btn btn-primary" onclick="loadAndRenderNovel()" style="margin-top:12px">Load Novel</button>
+      </div>
+    `;
+    return;
+  }
+
+  const novelProgress = JSON.parse(localStorage.getItem('jm_novel_progress') || '{}');
+
+  c.innerHTML = `
+    <h2>Novel Reader</h2>
+    <div class="novel-container">
+      <div class="novel-sidebar">
+        <div class="card">
+          <h3>Chapters</h3>
+          <ul class="chapter-list">
+            ${state.novelChapters.map((ch, i) => {
+              const pct = novelProgress[i] || 0;
+              return `<li class="chapter-item ${state.novelChapter === i ? 'active' : ''}" onclick="openChapter(${i})">
+                <div>${ch.title}</div>
+                <div class="chapter-progress"><div class="chapter-progress-fill" style="width:${pct}%"></div></div>
+              </li>`;
+            }).join('')}
+          </ul>
+        </div>
+      </div>
+      <div class="novel-content" id="novelContent">
+        <div class="card"><p>Select a chapter to begin reading.</p></div>
+      </div>
+    </div>
+  `;
+}
+
+async function loadAndRenderNovel() {
+  const c = document.getElementById('content');
+  c.innerHTML = '<div class="card"><div class="loading-spinner"><div class="spinner">&#10022;</div><p>Loading novel...</p></div></div>';
+  await loadNovel();
+  renderNovel(c);
+}
+
+function openChapter(idx) {
+  state.novelChapter = idx;
+  const ch = state.novelChapters[idx];
+  if (!ch) return;
+
+  document.querySelectorAll('.chapter-item').forEach((el, i) => el.classList.toggle('active', i === idx));
+
+  const showFurigana = localStorage.getItem('jm_novel_furigana') !== 'off';
+  const fontSize = localStorage.getItem('jm_novel_fontsize') || 'M';
+  const isVertical = localStorage.getItem('jm_novel_vertical') === 'on';
+  const fontSizeMap = { S: '0.9rem', M: '1.05rem', L: '1.2rem' };
+
+  const nc = document.getElementById('novelContent');
+  let html = `<div class="card">
+    <h3>${ch.title}</h3>
+    <div class="novel-controls">
+      <button class="btn btn-sm ${showFurigana ? 'btn-primary' : 'btn-secondary'}" onclick="toggleNovelFurigana()">Furigana ${showFurigana ? 'ON' : 'OFF'}</button>
+      <button class="btn btn-sm ${isVertical ? 'btn-primary' : 'btn-secondary'}" onclick="toggleNovelVertical()">&#32294;&#26360;&#12365; ${isVertical ? 'ON' : 'OFF'}</button>
+      ${['S','M','L'].map(s => `<button class="btn btn-sm ${fontSize === s ? 'btn-primary' : 'btn-secondary'}" onclick="setNovelFontSize('${s}')">${s}</button>`).join('')}
+    </div>
+    ${isVertical ? renderVerticalPages(ch.paragraphs, showFurigana, fontSizeMap[fontSize]) : `
+      <div class="novel-text" style="font-size:${fontSizeMap[fontSize]}" id="novelTextArea">
+        ${ch.paragraphs.map(p => `<p>${showFurigana ? furiganaNovel(p) : p}</p>`).join('')}
+      </div>
+    `}
+  </div>`;
+
+  if (idx < state.novelChapters.length - 1) {
+    html += `<div style="text-align:center;margin-top:12px"><button class="btn btn-primary" onclick="openChapter(${idx + 1})">Next Chapter &rarr;</button></div>`;
+  }
+
+  nc.innerHTML = html;
+
+  const textArea = document.getElementById('novelTextArea') || document.querySelector('.novel-page-v:last-child');
+  if (textArea) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const progress = JSON.parse(localStorage.getItem('jm_novel_progress') || '{}');
+          progress[idx] = 100;
+          localStorage.setItem('jm_novel_progress', JSON.stringify(progress));
+        }
+      });
+    }, { threshold: 0.9 });
+    observer.observe(textArea);
+  }
+}
+
+function renderVerticalPages(paragraphs, showFurigana, fontSize) {
+  // Split text into sentences, then group into page-sized chunks
+  // Each page is a fixed-height vertical-rl block; pages stack vertically
+  const PAGE_CHARS = 350;
+  const sentences = [];
+  paragraphs.forEach(p => {
+    // Split at Japanese period, keeping the period with the preceding text
+    const parts = p.split(/(?<=。)/);
+    parts.forEach(s => { if (s.trim()) sentences.push(s.trim()); });
+  });
+
+  const pages = [];
+  let page = [];
+  let len = 0;
+  sentences.forEach(s => {
+    if (len + s.length > PAGE_CHARS && page.length > 0) {
+      pages.push(page);
+      page = [];
+      len = 0;
+    }
+    page.push(s);
+    len += s.length;
+  });
+  if (page.length > 0) pages.push(page);
+
+  return pages.map((pg, i) => {
+    const content = pg.map(s => showFurigana ? furiganaNovel(s) : s).join('');
+    return `<div class="novel-page-v" style="font-size:${fontSize}">
+      <p>${content}</p>
+      <span class="page-label">${i + 1} / ${pages.length}</span>
+    </div>`;
+  }).join('');
+}
+
+function toggleNovelVertical() {
+  const current = localStorage.getItem('jm_novel_vertical');
+  localStorage.setItem('jm_novel_vertical', current === 'on' ? 'off' : 'on');
+  openChapter(state.novelChapter);
+}
+
+function toggleNovelFurigana() {
+  const current = localStorage.getItem('jm_novel_furigana');
+  localStorage.setItem('jm_novel_furigana', current === 'off' ? 'on' : 'off');
+  openChapter(state.novelChapter);
+}
+
+function setNovelFontSize(s) {
+  localStorage.setItem('jm_novel_fontsize', s);
+  openChapter(state.novelChapter);
+}
+
+// ===== MODULE: CULTURE =====
+function renderCulture(c) {
+  c.innerHTML = `
+    <h2>Japanese Culture</h2>
+    <div class="tab-bar">
+      <div class="tab active" onclick="showCultureTab('history',this)">History</div>
+      <div class="tab" onclick="showCultureTab('customs',this)">Customs</div>
+      <div class="tab" onclick="showCultureTab('events',this)">Seasonal Events</div>
+    </div>
+    <div id="cultureContent"></div>
+  `;
+  showCultureTab('history', document.querySelector('.tab.active'));
+}
+
+function showCultureTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const cc = document.getElementById('cultureContent');
+
+  if (tab === 'history') {
+    cc.innerHTML = `<div class="card"><h3>Japanese History Timeline</h3><div class="timeline">
+      ${HISTORY_DATA.map(h => `<div class="timeline-item">
+        <div class="timeline-era">${h.era}</div>
+        <div class="timeline-year">${h.year}</div>
+        <div class="timeline-desc">${h.desc}</div>
+      </div>`).join('')}
+    </div></div>`;
+  } else if (tab === 'customs') {
+    cc.innerHTML = `<div class="card"><h3>Japanese Social Customs</h3>
+      ${CUSTOMS_DATA.map(cu => `<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--bg3)">
+        <h4 style="color:var(--red)">${cu.title}</h4>
+        <p style="font-size:0.9rem;color:var(--ink2)">${cu.desc}</p>
+        ${cu.phrases ? `<div style="margin-top:8px">${cu.phrases.map(p => `<div style="font-size:0.85rem"><ruby>${p.jp}<rp>(</rp><rt>${p.reading}</rt><rp>)</rp></ruby> - ${p.meaning}</div>`).join('')}</div>` : ''}
+      </div>`).join('')}
+    </div>`;
+  } else {
+    cc.innerHTML = `<div class="card"><h3>Seasonal Events (年中行事)</h3>
+      <div class="grid grid-2">
+      ${EVENTS_DATA.map(ev => `<div style="background:var(--bg2);padding:14px;border-radius:var(--radius)">
+        <div style="font-weight:600;color:var(--red)">${ev.name}</div>
+        <div style="font-size:0.8rem;color:var(--ink3)">${ev.date}</div>
+        <div style="font-size:0.85rem;margin-top:4px">${ev.desc}</div>
+      </div>`).join('')}
+      </div>
+    </div>`;
+  }
+}
+
+// ===== MODULE: TRAVEL =====
+function renderTravel(c) {
+  c.innerHTML = `
+    <h2>Travel in Japan</h2>
+    <div class="tab-bar">
+      <div class="tab active" onclick="showTravelTab('destinations',this)">Destinations</div>
+      <div class="tab" onclick="showTravelTab('phrases',this)">Travel Phrases</div>
+      <div class="tab" onclick="showTravelTab('transport',this)">Transportation</div>
+    </div>
+    <div id="travelContent"></div>
+  `;
+  showTravelTab('destinations', document.querySelector('.tab.active'));
+}
+
+function showTravelTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const tc = document.getElementById('travelContent');
+
+  if (tab === 'destinations') {
+    tc.innerHTML = `<div class="grid grid-2">${DESTINATIONS.map(d => `
+      <div class="dest-card">
+        <div class="dest-header"><h3>${d.name}</h3><div style="font-size:0.85rem;opacity:0.8">${d.nameJP}</div></div>
+        <div class="dest-body">
+          <p>${d.desc}</p>
+          <div style="font-size:0.8rem;color:var(--ink3)"><strong>Highlights:</strong> ${d.highlights.join(', ')}</div>
+        </div>
+      </div>
+    `).join('')}</div>`;
+  } else if (tab === 'phrases') {
+    tc.innerHTML = `<div class="card"><h3>Essential Travel Phrases</h3>
+      <table class="vocab-table"><thead><tr><th>Japanese</th><th>Reading</th><th>Meaning</th></tr></thead><tbody>
+      ${TRAVEL_PHRASES.map(p => `<tr>
+        <td style="font-weight:500">${p.jp}</td>
+        <td style="color:var(--ink3)">${p.reading}</td>
+        <td>${p.meaning}</td>
+      </tr>`).join('')}
+      </tbody></table>
+    </div>`;
+  } else {
+    tc.innerHTML = `<div class="card"><h3>Transportation Guide</h3>
+      ${TRANSPORT_INFO.map(t => `<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--bg3)">
+        <h4 style="color:var(--red)">${t.title}</h4>
+        <p style="font-size:0.9rem">${t.desc}</p>
+      </div>`).join('')}
+    </div>`;
+  }
+}
+
+// ===== MODULE: PODCASTS =====
+function renderPodcasts(c) {
+  c.innerHTML = `
+    <h2>Japanese Podcasts</h2>
+    <p style="color:var(--ink3);font-size:0.85rem;margin-bottom:16px">Curated podcast recommendations organized by level.</p>
+    ${['Beginner','Intermediate','Advanced'].map(level => `
+      <h3 style="margin-top:16px;margin-bottom:8px">${level}</h3>
+      ${PODCASTS[level].map(p => `
+        <div class="podcast-card">
+          <div class="podcast-icon">${p.icon}</div>
+          <div class="podcast-info">
+            <h4>${p.name}</h4>
+            <p>${p.desc}</p>
+          </div>
+        </div>
+      `).join('')}
+    `).join('')}
+  `;
+}
+
+// ===== MODULE: RESOURCES =====
+function renderResources(c) {
+  c.innerHTML = `
+    <h2>Resources</h2>
+    <div class="card">
+      <h3>JLPT Levels Overview</h3>
+      <table class="vocab-table">
+        <thead><tr><th>Level</th><th>Vocab</th><th>Kanji</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge badge-n5">N5</span></td><td>~800</td><td>~100</td><td>Basic greetings, numbers, common words</td></tr>
+          <tr><td><span class="badge badge-n4">N4</span></td><td>~1,500</td><td>~300</td><td>Everyday conversations, basic grammar</td></tr>
+          <tr><td><span class="badge badge-n3">N3</span></td><td>~3,750</td><td>~650</td><td>Daily life, news, simple articles</td></tr>
+          <tr><td><span class="badge badge-n2">N2</span></td><td>~6,000</td><td>~1,000</td><td>Newspapers, workplace, natural conversations</td></tr>
+          <tr><td><span class="badge badge-n1">N1</span></td><td>~10,000</td><td>~2,000</td><td>Complex texts, academic, native level</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Recommended Textbooks</h3>
+      ${TEXTBOOKS.map(t => `<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--bg3)">
+        <h4>${t.name}</h4>
+        <p style="font-size:0.85rem;color:var(--ink2)">${t.desc}</p>
+        <span class="badge badge-${t.level.toLowerCase()}">${t.level}</span>
+      </div>`).join('')}
+    </div>
+
+    <div class="card">
+      <h3>Online Tools</h3>
+      <div class="grid grid-2">
+        ${ONLINE_TOOLS.map(t => `<div style="background:var(--bg2);padding:12px;border-radius:var(--radius)">
+          <h4>${t.name}</h4>
+          <p style="font-size:0.8rem;color:var(--ink2)">${t.desc}</p>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Study Tips</h3>
+      <ul style="padding-left:20px">
+        ${STUDY_TIPS.map(t => `<li style="margin-bottom:8px;font-size:0.9rem">${t}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+}
+
+// ===== CURATED CONTENT DATA =====
+const HISTORY_DATA = [
+  { era: '縄文時代 (Jomon)', year: '14,000 - 300 BC', desc: 'Hunter-gatherer culture. Distinctive cord-marked pottery.' },
+  { era: '弥生時代 (Yayoi)', year: '300 BC - 300 AD', desc: 'Rice cultivation introduced from mainland Asia. Bronze and iron tools.' },
+  { era: '古墳時代 (Kofun)', year: '300 - 538', desc: 'Era of keyhole-shaped burial mounds. Yamato clan rises to power.' },
+  { era: '飛鳥時代 (Asuka)', year: '538 - 710', desc: 'Buddhism introduced. Prince Shotoku establishes first constitution.' },
+  { era: '奈良時代 (Nara)', year: '710 - 794', desc: 'First permanent capital at Nara. Compilation of Kojiki and Man\'yoshu.' },
+  { era: '平安時代 (Heian)', year: '794 - 1185', desc: 'Golden age of Japanese culture. Tale of Genji. Hiragana developed.' },
+  { era: '鎌倉時代 (Kamakura)', year: '1185 - 1333', desc: 'First shogunate. Rise of samurai class. Zen Buddhism flourishes.' },
+  { era: '室町時代 (Muromachi)', year: '1336 - 1573', desc: 'Ashikaga shogunate. Noh theater, tea ceremony, and ink painting develop.' },
+  { era: '安土桃山時代', year: '1573 - 1603', desc: 'Unification under Oda Nobunaga and Toyotomi Hideyoshi. Castles built.' },
+  { era: '江戸時代 (Edo)', year: '1603 - 1868', desc: 'Tokugawa shogunate. 250 years of peace. Ukiyo-e, kabuki, haiku flourish.' },
+  { era: '明治時代 (Meiji)', year: '1868 - 1912', desc: 'Modernization and westernization. End of feudal system. Rapid industrialization.' },
+  { era: '大正時代 (Taisho)', year: '1912 - 1926', desc: 'Democratic movement. Cultural liberalization. Kanto earthquake 1923.' },
+  { era: '昭和時代 (Showa)', year: '1926 - 1989', desc: 'WWII, post-war reconstruction, economic miracle. Longest reign in history.' },
+  { era: '平成時代 (Heisei)', year: '1989 - 2019', desc: 'Economic bubble burst. Cool Japan culture. Technological innovation.' },
+  { era: '令和時代 (Reiwa)', year: '2019 - present', desc: 'Current era. "Beautiful harmony." Recovery and new challenges.' },
+];
+
+const CUSTOMS_DATA = [
+  { title: 'お辞儀 (Bowing)', desc: 'Bowing is the most common greeting. Depth indicates respect level: 15° for casual (会釈), 30° for polite (敬礼), 45° for deep respect (最敬礼).', phrases: [
+    { jp: 'よろしくお願いします', reading: 'よろしくおねがいします', meaning: 'Please take care of me / Nice to meet you' },
+    { jp: 'お世話になっております', reading: 'おせわになっております', meaning: 'Thank you for your continued support' }
+  ]},
+  { title: '靴を脱ぐ (Removing Shoes)', desc: 'Always remove shoes when entering a Japanese home, temple, or traditional restaurant. Look for the 玄関 (genkan) area and slippers.' },
+  { title: '名刺交換 (Business Card Exchange)', desc: 'Present cards with both hands, facing the recipient. Receive with both hands, read carefully, and place on the table during meetings.' },
+  { title: '贈り物 (Gift Giving)', desc: 'Gifts are given with both hands. Always wrap gifts. Common occasions: お中元 (summer), お歳暮 (year-end), お土産 (souvenirs).', phrases: [
+    { jp: 'つまらないものですが', reading: 'つまらないものですが', meaning: 'It\'s nothing special, but... (humble gift-giving phrase)' }
+  ]},
+  { title: '食事のマナー (Dining Etiquette)', desc: 'Say いただきます before eating and ごちそうさまでした after. Never stick chopsticks upright in rice. Slurping noodles is acceptable.', phrases: [
+    { jp: 'いただきます', reading: 'いただきます', meaning: 'I humbly receive (before eating)' },
+    { jp: 'ごちそうさまでした', reading: 'ごちそうさまでした', meaning: 'Thank you for the meal (after eating)' }
+  ]},
+];
+
+const EVENTS_DATA = [
+  { name: '正月 (New Year)', date: 'January 1-3', desc: 'Most important holiday. Visit shrines (初詣), eat osechi ryori, send nengajo cards.' },
+  { name: '節分 (Setsubun)', date: 'February 3', desc: 'Bean-throwing festival. Throw beans to ward off evil (鬼は外、福は内).' },
+  { name: 'ひな祭り (Doll Festival)', date: 'March 3', desc: 'Girls\' Day. Display ornamental dolls representing the emperor\'s court.' },
+  { name: '花見 (Cherry Blossom Viewing)', date: 'Late March - April', desc: 'Picnic under cherry trees. Symbolizes the beauty and transience of life.' },
+  { name: 'ゴールデンウィーク', date: 'April 29 - May 5', desc: 'Week of consecutive holidays including Children\'s Day (こどもの日).' },
+  { name: '七夕 (Tanabata)', date: 'July 7', desc: 'Star Festival. Write wishes on paper strips (短冊) and hang on bamboo.' },
+  { name: 'お盆 (Obon)', date: 'August 13-16', desc: 'Buddhist festival honoring ancestors. Bon Odori dances. Many travel home.' },
+  { name: '紅葉 (Autumn Leaves)', date: 'October - November', desc: 'Viewing autumn foliage. Popular at temples in Kyoto.' },
+  { name: '七五三 (Shichi-Go-San)', date: 'November 15', desc: 'Festival for children aged 3, 5, and 7. Visit shrines in formal kimono.' },
+  { name: '大晦日 (New Year\'s Eve)', date: 'December 31', desc: 'Temple bells ring 108 times (除夜の鐘). Eat toshikoshi soba for longevity.' },
+];
+
+const DESTINATIONS = [
+  { name: 'Tokyo', nameJP: '東京', desc: 'Japan\'s vibrant capital. A mix of ultramodern and traditional, from neon-lit skyscrapers to historic temples.', highlights: ['浅草 (Sensoji)', '渋谷 (Shibuya Crossing)', '秋葉原 (Akihabara)', '新宿 (Shinjuku)', '皇居 (Imperial Palace)'] },
+  { name: 'Kyoto', nameJP: '京都', desc: 'Former imperial capital with over 2,000 temples and shrines. The cultural heart of Japan.', highlights: ['金閣寺', '伏見稲荷大社', '嵐山 (Arashiyama)', '清水寺', '祇園 (Gion)'] },
+  { name: 'Osaka', nameJP: '大阪', desc: 'Japan\'s kitchen. Famous for street food, lively atmosphere, and friendly locals.', highlights: ['道頓堀', '大阪城', '通天閣', 'USJ', '黒門市場'] },
+  { name: 'Hokkaido', nameJP: '北海道', desc: 'Japan\'s northern island. Known for nature, skiing, hot springs, and fresh seafood.', highlights: ['札幌', '富良野 (Furano)', '函館 (Hakodate)', 'ニセコ', '知床'] },
+  { name: 'Hiroshima', nameJP: '広島', desc: 'City of peace. Home to the Peace Memorial and gateway to Miyajima island.', highlights: ['平和記念公園', '厳島神社', 'お好み焼き', '原爆ドーム'] },
+  { name: 'Okinawa', nameJP: '沖縄', desc: 'Tropical islands with unique Ryukyu culture, beautiful beaches, and distinct cuisine.', highlights: ['首里城', '美ら海水族館', 'ビーチ', '泡盛', 'ゴーヤチャンプルー'] },
+  { name: 'Nara', nameJP: '奈良', desc: 'Ancient capital with friendly deer roaming the park. Home to some of Japan\'s oldest temples.', highlights: ['東大寺 (Great Buddha)', '奈良公園 (Deer Park)', '春日大社', '法隆寺'] },
+  { name: 'Hakone', nameJP: '箱根', desc: 'Hot spring resort area near Mt. Fuji. Popular weekend escape from Tokyo.', highlights: ['温泉', '芦ノ湖', '大涌谷', '箱根神社', '富士山ビュー'] },
+];
+
+const TRAVEL_PHRASES = [
+  { jp: 'すみません、駅はどこですか', reading: 'すみません、えきはどこですか', meaning: 'Excuse me, where is the station?' },
+  { jp: 'いくらですか', reading: 'いくらですか', meaning: 'How much is it?' },
+  { jp: 'これをください', reading: 'これをください', meaning: 'I\'ll take this, please' },
+  { jp: 'お勘定お願いします', reading: 'おかんじょうおねがいします', meaning: 'Check, please' },
+  { jp: 'トイレはどこですか', reading: 'トイレはどこですか', meaning: 'Where is the restroom?' },
+  { jp: '英語を話せますか', reading: 'えいごをはなせますか', meaning: 'Do you speak English?' },
+  { jp: '助けてください', reading: 'たすけてください', meaning: 'Please help me' },
+  { jp: '写真を撮ってもらえますか', reading: 'しゃしんをとってもらえますか', meaning: 'Could you take my photo?' },
+  { jp: '予約をお願いします', reading: 'よやくをおねがいします', meaning: 'I\'d like to make a reservation' },
+  { jp: 'おすすめは何ですか', reading: 'おすすめはなんですか', meaning: 'What do you recommend?' },
+  { jp: 'Wi-Fiはありますか', reading: 'ワイファイはありますか', meaning: 'Is there Wi-Fi?' },
+  { jp: '乗り換えはどこですか', reading: 'のりかえはどこですか', meaning: 'Where do I transfer?' },
+];
+
+const TRANSPORT_INFO = [
+  { title: 'JR Pass (Japan Rail Pass)', desc: 'A cost-effective rail pass for tourists covering most JR trains including shinkansen. Available in 7, 14, or 21-day options. Must be purchased before arriving in Japan. Covers JR lines nationwide but not private railways (私鉄).' },
+  { title: 'IC Cards (Suica / Pasmo / ICOCA)', desc: 'Rechargeable smart cards for trains, buses, and convenience stores. Suica (JR East), Pasmo (private lines in Tokyo), ICOCA (Kansai). Tap in and out at station gates. Can also be used for vending machines and shops.' },
+  { title: '新幹線 (Shinkansen / Bullet Train)', desc: 'High-speed rail connecting major cities. Tokaido line (Tokyo-Osaka) is busiest. Types: のぞみ (Nozomi, fastest), ひかり (Hikari), こだま (Kodama, all stops). Reserve seats or use unreserved cars (自由席).' },
+  { title: '地下鉄 (Subway)', desc: 'Major cities have extensive subway systems. Tokyo has Tokyo Metro and Toei lines. Color-coded lines with bilingual signage. Avoid rush hour (7:30-9:00 AM).' },
+  { title: 'タクシー (Taxi)', desc: 'Doors open automatically. No tipping. Drivers wear white gloves. Base fare around 400-700 yen. Late night surcharge (深夜割増) applies after 10 PM.' },
+];
+
+const PODCASTS = {
+  Beginner: [
+    { name: 'NHK World Easy Japanese', icon: '📻', desc: 'Official NHK lessons with clear pronunciation, grammar explanations, and cultural notes. Free.' },
+    { name: 'JapanesePod101', icon: '🎧', desc: 'Structured lessons from absolute beginner to advanced. Includes transcripts and vocabulary lists.' },
+    { name: 'Learn Japanese with Tanaka', icon: '🗣', desc: 'Short episodes covering basic phrases and grammar with English explanations.' },
+  ],
+  Intermediate: [
+    { name: 'Nihongo con Teppei', icon: '☕', desc: 'Natural Japanese conversations at intermediate speed. Great for listening practice. No English.' },
+    { name: 'Learn Japanese with Noriko', icon: '🎙', desc: 'Japanese teacher talks about daily life in Japan. Clear speech at natural speed.' },
+    { name: 'Sakura Tips', icon: '🌸', desc: 'Discussions about Japanese culture, language, and society. Intermediate level.' },
+  ],
+  Advanced: [
+    { name: 'NHK Radio News', icon: '📰', desc: 'Real Japanese news broadcasts. Excellent for advanced listening. Full native speed.' },
+    { name: 'Rebuild.fm', icon: '💻', desc: 'Japanese tech podcast. Natural conversation between developers. Real-world vocabulary.' },
+    { name: 'ゆる言語学ラジオ', icon: '📖', desc: 'Casual linguistics podcast. Deep dives into Japanese language phenomena.' },
+  ],
+};
+
+const TEXTBOOKS = [
+  { name: 'みんなの日本語 (Minna no Nihongo)', desc: 'The most widely used Japanese textbook worldwide. Used in language schools across Japan. Structured lessons with grammar, vocabulary, and exercises.', level: 'N5' },
+  { name: 'げんき (Genki)', desc: 'Popular textbook for university courses. Conversational approach with cultural notes. Good balance of all four skills.', level: 'N5' },
+  { name: '中級へ行こう (Chuukyuu e Ikou)', desc: 'Bridge from beginner to intermediate. Reading passages with grammar explanations. Builds reading comprehension.', level: 'N3' },
+  { name: 'とびら (Tobira)', desc: 'Gateway to Advanced Japanese. Content-based approach covering Japanese society, culture, and current events.', level: 'N3' },
+  { name: '新完全マスター (Shin Kanzen Master)', desc: 'Comprehensive JLPT preparation series. Available for N1-N3. Covers grammar, vocabulary, reading, and listening.', level: 'N2' },
+];
+
+const ONLINE_TOOLS = [
+  { name: 'Jisho.org', desc: 'Comprehensive Japanese-English dictionary with kanji lookup, radical search, and example sentences.' },
+  { name: 'Weblio', desc: 'Japanese-Japanese dictionary. Essential for understanding nuance at intermediate+ levels.' },
+  { name: 'Anki', desc: 'Spaced repetition flashcard app. Many pre-made Japanese decks available. Great for kanji and vocabulary.' },
+  { name: 'WaniKani', desc: 'Gamified kanji learning system using mnemonics and SRS. Teaches kanji in context with vocabulary.' },
+  { name: 'Bunpro', desc: 'SRS-based grammar learning tool organized by JLPT level. Includes example sentences and explanations.' },
+  { name: 'NHK News Web Easy', desc: 'Simplified Japanese news with furigana. Perfect for reading practice at intermediate level.' },
+];
+
+const STUDY_TIPS = [
+  'Set a daily study routine - even 15 minutes of consistent practice beats irregular long sessions.',
+  'Use spaced repetition (SRS) for vocabulary. Review flashcards daily.',
+  'Immerse yourself: change your phone language to Japanese, watch Japanese TV with subtitles.',
+  'Practice all four skills: reading, writing, listening, and speaking. Don\'t neglect any.',
+  'Learn kanji in context with words, not in isolation. Learn 漢字 through 単語.',
+  'Shadow native speakers: listen and repeat simultaneously to improve pronunciation and rhythm.',
+  'Keep a vocabulary notebook organized by topic, not alphabetically.',
+  'Read extensively: manga, NHK Easy News, graded readers, then novels.',
+  'Talk to native speakers regularly. Language exchange apps like HelloTalk can help.',
+  'Study grammar patterns with example sentences, not just rules.',
+  'Focus on high-frequency words first. JLPT N5/N4 vocabulary covers ~80% of daily conversation.',
+  'Don\'t be afraid of making mistakes. Every mistake is a learning opportunity.',
+];
+
+// ===== INITIALIZATION =====
+async function init() {
+  try {
+    await Promise.all([loadZhuyin(), loadVocabulary()]);
+  } catch(e) { console.warn('Some data failed to load:', e); }
+
+  // Enrich ZHUYIN table with kanji→reading from all vocabulary entries
+  state.allVocab.forEach(v => {
+    if (v.kanji && v.reading && !state.ZHUYIN[v.kanji]) {
+      state.ZHUYIN[v.kanji] = v.reading;
+    }
+  });
+  state._zhuyinSorted = null; // reset sorted cache so furiganaNovel rebuilds it
+
+  const lastModule = localStorage.getItem('jm_last_module') || 'dashboard';
+  state.module = lastModule;
+
+  document.getElementById('loading').classList.add('hidden');
+
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.remove('active');
+    if (el.getAttribute('onclick') === `navigate('${lastModule}')`) el.classList.add('active');
+  });
+
+  renderModule();
+}
+
+init();
+
+// Register service worker for PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js').catch(function(){});
+}
+</script>
+</body>
+</html>
