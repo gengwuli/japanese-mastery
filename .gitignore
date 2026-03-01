@@ -1,7 +1,4 @@
-# Audio/binary files (if any accidentally added)
+# Audio/binary files
 *.mp3
 *.ogg
 *.wav
-
-# Assets directory - kept locally for mobile PWA, not pushed to GitHub
-assets/
