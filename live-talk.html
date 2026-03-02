@@ -702,6 +702,22 @@ body::before {
       </div>
     </div>
 
+    <div class="level-selector" style="animation-delay:0.85s">
+      <div class="level-label">モデル</div>
+      <div class="level-pills">
+        <div class="level-pill" data-model="gemini-2.5-flash" onclick="selectModel(this)">2.5 Flash</div>
+        <div class="level-pill selected" data-model="gemini-2.5-flash-lite" onclick="selectModel(this)">2.5 Flash-Lite</div>
+        <div class="level-pill" data-model="gemini-3.0-flash" onclick="selectModel(this)">3.0 Flash</div>
+      </div>
+      <div class="level-label" style="margin-top:10px">音声エンジン (TTS)</div>
+      <div class="level-pills">
+        <div class="level-pill selected" data-tts="live" onclick="selectTTS(this)">Live Audio ♾️</div>
+        <div class="level-pill" data-tts="gemini" onclick="selectTTS(this)">Gemini TTS</div>
+        <div class="level-pill" data-tts="browser" onclick="selectTTS(this)">Browser TTS</div>
+        <div class="level-pill" data-tts="none" onclick="selectTTS(this)">テキストのみ</div>
+      </div>
+    </div>
+
     <div class="api-notice" id="apiNotice">
       <span>🔑</span>
       <span id="apiNoticeText">APIキーを設定してください</span>
@@ -792,7 +808,9 @@ body::before {
 <script>
 // ===== CONFIG =====
 let API_KEY = localStorage.getItem('gemini_api_key') || '';
-const getApiUrl = () => `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+let selectedModel = localStorage.getItem('gemini_model') || 'gemini-2.5-flash-lite';
+let selectedTTSEngine = localStorage.getItem('gemini_tts') || 'live';
+const getApiUrl = () => `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${API_KEY}`;
 
 // ===== STATE =====
 let selectedPersona = 'sakura';
@@ -912,6 +930,22 @@ function initApp() {
   if (API_KEY) {
     document.getElementById('apiKeyInput').value = API_KEY;
   }
+  // Restore saved selections
+  const savedModel = localStorage.getItem('gemini_model');
+  if (savedModel) {
+    selectedModel = savedModel;
+    document.querySelectorAll('[data-model]').forEach(p => p.classList.toggle('selected', p.dataset.model === savedModel));
+  }
+  const savedTTS = localStorage.getItem('gemini_tts');
+  if (savedTTS) {
+    selectedTTSEngine = savedTTS;
+    document.querySelectorAll('[data-tts]').forEach(p => p.classList.toggle('selected', p.dataset.tts === savedTTS));
+  }
+  const savedLevel = localStorage.getItem('gemini_level');
+  if (savedLevel) {
+    selectedLevel = savedLevel;
+    document.querySelectorAll('[data-level]').forEach(p => p.classList.toggle('selected', p.dataset.level === savedLevel));
+  }
   // Show API key screen first if no key
   if (!API_KEY) {
     showScreen('apikey');
@@ -926,9 +960,24 @@ function selectPersona(card) {
 }
 
 function selectLevel(pill) {
-  document.querySelectorAll('.level-pill').forEach(p => p.classList.remove('selected'));
+  pill.parentElement.querySelectorAll('.level-pill').forEach(p => p.classList.remove('selected'));
   pill.classList.add('selected');
   selectedLevel = pill.dataset.level;
+  localStorage.setItem('gemini_level', selectedLevel);
+}
+
+function selectModel(pill) {
+  pill.parentElement.querySelectorAll('.level-pill').forEach(p => p.classList.remove('selected'));
+  pill.classList.add('selected');
+  selectedModel = pill.dataset.model;
+  localStorage.setItem('gemini_model', selectedModel);
+}
+
+function selectTTS(pill) {
+  pill.parentElement.querySelectorAll('.level-pill').forEach(p => p.classList.remove('selected'));
+  pill.classList.add('selected');
+  selectedTTSEngine = pill.dataset.tts;
+  localStorage.setItem('gemini_tts', selectedTTSEngine);
 }
 
 function startChat() {
@@ -1029,8 +1078,36 @@ async function processUserMessage(text) {
     } else if (data.error) {
       hideTyping();
       const errMsg = data.error.message || 'APIエラーが発生しました';
-      addMessage('ai', `⚠️ APIエラー: ${errMsg}<br><small style="color:var(--ink-faint)">APIキーを確認してください</small>`, PERSONAS[selectedPersona].avatar, []);
-      if (data.error.code === 400 || data.error.code === 403) showScreen('apikey');
+      const isQuota = data.error.code === 429 || /quota|rate|limit|resource.*exhaust/i.test(errMsg);
+      if (isQuota) {
+        const fallbacks = ['gemini-2.5-flash-lite', 'gemini-3.0-flash', 'gemini-2.5-flash'].filter(m => m !== selectedModel);
+        const next = fallbacks[0];
+        addMessage('ai', `⚠️ ${selectedModel}のクォータ制限に達しました。${next}に自動切替します...`, PERSONAS[selectedPersona].avatar, []);
+        selectedModel = next;
+        localStorage.setItem('gemini_model', selectedModel);
+        document.querySelectorAll('[data-model]').forEach(p => p.classList.toggle('selected', p.dataset.model === selectedModel));
+        // Retry with new model
+        showTyping();
+        try {
+          const retryBody = { system_instruction: { parts: [{ text: PERSONAS[selectedPersona].systemPrompt(selectedLevel) }] }, contents: conversationHistory, generationConfig: { temperature: 0.9, maxOutputTokens: 600 } };
+          const retryResp = await fetch(getApiUrl(), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(retryBody) });
+          const retryData = await retryResp.json();
+          hideTyping();
+          if (retryData.candidates?.[0]?.content?.parts?.[0]?.text) {
+            const rawText = retryData.candidates[0].content.parts[0].text;
+            const parsed = parseAIResponse(rawText);
+            conversationHistory.push({ role: 'model', parts: [{ text: rawText }] });
+            addMessage('ai', parsed.mainText, PERSONAS[selectedPersona].avatar, parsed.vocabs);
+            updateStats(); setStatus('live');
+            if (currentMode === 'voice') await speakText(parsed.mainText);
+          } else {
+            addMessage('ai', `⚠️ 再試行も失敗しました。別のモデルを選んでください。`, PERSONAS[selectedPersona].avatar, []);
+          }
+        } catch(retryErr) { hideTyping(); addMessage('ai', `⚠️ 再試行エラー: ${retryErr.message}`, PERSONAS[selectedPersona].avatar, []); }
+      } else {
+        addMessage('ai', `⚠️ APIエラー: ${errMsg}<br><small style="color:var(--ink-faint)">APIキーを確認してください</small>`, PERSONAS[selectedPersona].avatar, []);
+        if (data.error.code === 400 || data.error.code === 403) showScreen('apikey');
+      }
     } else {
       hideTyping();
       addMessage('ai', `⚠️ 応答がありませんでした。もう一度試してください。<br><small>Response: ${JSON.stringify(data).substring(0,100)}</small>`, PERSONAS[selectedPersona].avatar, []);
@@ -1126,59 +1203,134 @@ function setStatus(state) {
   }
 }
 
-// ===== VOICE TTS via Gemini =====
+// ===== VOICE TTS ENGINE =====
+const TTS_VOICE_MAP = { sakura: 'Kore', sensei: 'Charon', kenta: 'Fenrir', master: 'Orus' };
+
 async function speakText(text) {
-  if (!text) return;
+  if (!text || selectedTTSEngine === 'none') return;
   isAISpeaking = true;
   setStatus('話しています...');
   document.getElementById('micBtn').className = 'mic-btn ai-speaking';
 
   try {
-    const ttsUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${API_KEY}`;
-    const voiceMap = { sakura: 'Kore', sensei: 'Charon', kenta: 'Fenrir', master: 'Orus' };
-    const voiceName = voiceMap[selectedPersona] || 'Kore';
-
-    const body = {
-      contents: [{ parts: [{ text }] }],
-      generationConfig: {
-        responseModalities: ['AUDIO'],
-        speechConfig: {
-          voiceConfig: { prebuiltVoiceConfig: { voiceName } }
-        }
-      }
-    };
-
-    const resp = await fetch(ttsUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-
-    const data = await resp.json();
-    const audioData = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-
-    if (audioData) {
-      const wavData = pcmToWav(audioData);
-      const audioBlob = new Blob([wavData], { type: 'audio/wav' });
-      const audioUrl = URL.createObjectURL(audioBlob);
-      if (currentAudio) { currentAudio.pause(); URL.revokeObjectURL(currentAudio.src); }
-      currentAudio = new Audio(audioUrl);
-      currentAudio.onended = () => {
-        isAISpeaking = false;
-        setStatus('live');
-        document.getElementById('micBtn').className = 'mic-btn';
-        URL.revokeObjectURL(audioUrl);
-      };
-      await currentAudio.play();
+    if (selectedTTSEngine === 'live') {
+      await speakWithLiveAPI(text);
+    } else if (selectedTTSEngine === 'browser') {
+      await speakWithBrowserTTS(text);
     } else {
-      throw new Error('No audio data');
+      await speakWithGeminiTTS(text);
     }
   } catch (e) {
-    console.warn('TTS failed, continuing without audio:', e);
-    isAISpeaking = false;
-    setStatus('live');
-    document.getElementById('micBtn').className = 'mic-btn';
+    console.warn('TTS failed, trying browser fallback:', e);
+    try { await speakWithBrowserTTS(text); } catch (e2) { console.warn('Browser TTS also failed:', e2); }
   }
+
+  isAISpeaking = false;
+  setStatus('live');
+  document.getElementById('micBtn').className = 'mic-btn';
+}
+
+// -- Gemini REST TTS --
+async function speakWithGeminiTTS(text) {
+  const ttsUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${API_KEY}`;
+  const voiceName = TTS_VOICE_MAP[selectedPersona] || 'Kore';
+  const body = {
+    contents: [{ parts: [{ text }] }],
+    generationConfig: {
+      responseModalities: ['AUDIO'],
+      speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
+    }
+  };
+  const resp = await fetch(ttsUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error.message);
+  const audioData = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+  if (!audioData) throw new Error('No audio data');
+  await playPCMAudio(audioData);
+}
+
+// -- Live API WebSocket TTS (unlimited quota) --
+async function speakWithLiveAPI(text) {
+  return new Promise((resolve, reject) => {
+    const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${API_KEY}`;
+    const ws = new WebSocket(wsUrl);
+    const audioChunks = [];
+    let resolved = false;
+    const finish = (fn) => { if (!resolved) { resolved = true; fn(); } };
+    const timer = setTimeout(() => { try { ws.close(); } catch(e) {} finish(() => reject(new Error('Live API timeout'))); }, 30000);
+
+    ws.onopen = () => {
+      const voiceName = TTS_VOICE_MAP[selectedPersona] || 'Kore';
+      ws.send(JSON.stringify({
+        setup: {
+          model: 'models/gemini-2.5-flash-native-audio-dialog',
+          generationConfig: {
+            responseModalities: ['AUDIO'],
+            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
+          }
+        }
+      }));
+    };
+
+    ws.onmessage = async (event) => {
+      try {
+        const raw = typeof event.data === 'string' ? event.data : await event.data.text();
+        const msg = JSON.parse(raw);
+        if (msg.setupComplete) {
+          ws.send(JSON.stringify({
+            clientContent: {
+              turns: [{ role: 'user', parts: [{ text: `次のテキストを声に出して読んでください: ${text}` }] }],
+              turnComplete: true
+            }
+          }));
+        } else if (msg.serverContent) {
+          const parts = msg.serverContent.modelTurn?.parts || [];
+          for (const part of parts) {
+            if (part.inlineData?.data) audioChunks.push(part.inlineData.data);
+          }
+          if (msg.serverContent.turnComplete) {
+            clearTimeout(timer);
+            try { ws.close(); } catch(e) {}
+            if (audioChunks.length > 0) {
+              try { await playPCMAudio(audioChunks.join('')); finish(resolve); }
+              catch(e) { finish(() => reject(e)); }
+            } else { finish(resolve); }
+          }
+        }
+      } catch(e) { clearTimeout(timer); finish(() => reject(e)); }
+    };
+
+    ws.onerror = () => { clearTimeout(timer); finish(() => reject(new Error('WebSocket error'))); };
+    ws.onclose = () => { clearTimeout(timer); finish(resolve); };
+  });
+}
+
+// -- Browser SpeechSynthesis TTS --
+function speakWithBrowserTTS(text) {
+  return new Promise((resolve) => {
+    if (!window.speechSynthesis) { resolve(); return; }
+    const cleanText = text.replace(/<[^>]*>/g, '');
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.lang = 'ja-JP';
+    utterance.rate = 0.9;
+    utterance.onend = resolve;
+    utterance.onerror = () => resolve();
+    speechSynthesis.speak(utterance);
+  });
+}
+
+// -- Shared PCM audio playback --
+async function playPCMAudio(base64pcm) {
+  const wavData = pcmToWav(base64pcm);
+  const audioBlob = new Blob([wavData], { type: 'audio/wav' });
+  const audioUrl = URL.createObjectURL(audioBlob);
+  if (currentAudio) { currentAudio.pause(); URL.revokeObjectURL(currentAudio.src); }
+  return new Promise((resolve, reject) => {
+    currentAudio = new Audio(audioUrl);
+    currentAudio.onended = () => { URL.revokeObjectURL(audioUrl); resolve(); };
+    currentAudio.onerror = () => { URL.revokeObjectURL(audioUrl); reject(new Error('Audio playback failed')); };
+    currentAudio.play().catch(reject);
+  });
 }
 
 function pcmToWav(base64pcm) {
