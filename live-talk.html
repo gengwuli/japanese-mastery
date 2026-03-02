@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:,">
 <title>日本語ライブトーク — AI Native Speaker</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500&family=Shippori+Mincho:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -483,6 +484,26 @@ body::before {
   font-size: 16px;
 }
 .send-btn:hover { background: var(--vermillion-light); transform: scale(1.05); }
+.text-input:disabled { opacity: 0.5; cursor: not-allowed; background: var(--washi-dark); }
+.send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.send-btn:disabled:hover { background: var(--vermillion); transform: none; }
+
+.replay-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--washi);
+  border: 1px solid var(--washi-dark);
+  border-radius: 14px;
+  padding: 3px 10px;
+  font-size: 0.75em;
+  color: var(--ink-faint);
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-top: 4px;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+.replay-btn:hover { border-color: var(--vermillion); color: var(--vermillion); }
 
 /* MIC BUTTON */
 .mic-btn {
@@ -651,12 +672,171 @@ body::before {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--washi-dark); border-radius: 2px; }
 
+/* ===== SESSION HISTORY ===== */
+.session-history {
+  max-width: 680px;
+  width: 100%;
+  margin-top: 48px;
+  text-align: left;
+}
+
+.session-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.session-history-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.session-clear-all {
+  background: none;
+  border: 1px solid var(--washi-dark);
+  border-radius: 8px;
+  padding: 4px 12px;
+  font-size: 0.75em;
+  color: var(--ink-faint);
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: all 0.15s;
+}
+.session-clear-all:hover { border-color: var(--vermillion); color: var(--vermillion); }
+
+.session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.session-card {
+  background: #fff;
+  border: 1px solid var(--washi-dark);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--paper-shadow);
+  transition: all 0.15s;
+}
+
+.session-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.session-card-header:hover { background: var(--washi); }
+
+.session-card-avatar { font-size: 24px; flex-shrink: 0; }
+
+.session-card-info { flex: 1; min-width: 0; }
+
+.session-card-date {
+  font-size: 0.78em;
+  color: var(--ink-faint);
+  margin-bottom: 2px;
+}
+
+.session-card-meta {
+  font-size: 0.72em;
+  color: var(--ink-faint);
+  display: flex;
+  gap: 12px;
+}
+
+.session-card-delete {
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.session-card-delete:hover { color: var(--vermillion); background: #fff3f0; }
+
+.session-card-resume {
+  background: var(--vermillion);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.72em;
+  padding: 4px 12px;
+  border-radius: 8px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+.session-card-resume:hover { background: var(--vermillion-light); }
+
+.session-messages {
+  display: none;
+  border-top: 1px solid var(--washi-dark);
+  padding: 12px 16px;
+  max-height: 300px;
+  overflow-y: auto;
+  background: var(--washi);
+}
+.session-messages.open { display: block; }
+
+.session-msg {
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  border-radius: 8px;
+  font-size: 0.82em;
+  line-height: 1.7;
+  word-break: break-word;
+}
+.session-msg.user {
+  background: var(--vermillion);
+  color: #fff;
+  margin-left: 20%;
+  border-radius: 8px 4px 8px 8px;
+}
+.session-msg.ai {
+  background: #fff;
+  border: 1px solid var(--washi-dark);
+  margin-right: 20%;
+  border-radius: 4px 8px 8px 8px;
+}
+
+.session-empty {
+  text-align: center;
+  color: var(--ink-faint);
+  font-size: 0.85em;
+  padding: 20px;
+}
+
+/* Clear cache button */
+.clear-cache-btn {
+  margin-top: 32px;
+  background: none;
+  border: 1px solid var(--washi-dark);
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-size: 0.78em;
+  color: var(--ink-faint);
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  transition: all 0.15s;
+}
+.clear-cache-btn:hover { border-color: var(--vermillion); color: var(--vermillion); }
+
 /* Responsive */
 @media (max-width: 600px) {
   .persona-grid { grid-template-columns: 1fr; }
   .landing-title { font-size: 2em; }
   .mon { font-size: 48px; }
   .message { max-width: 90%; }
+  .session-msg.user { margin-left: 10%; }
+  .session-msg.ai { margin-right: 10%; }
 }
 </style>
 </head>
@@ -723,10 +903,10 @@ body::before {
       </div>
       <div class="level-label" style="margin-top:10px">音声エンジン (TTS)</div>
       <div class="level-pills">
-        <div class="level-pill selected" data-tts="live" onclick="selectTTS(this)">Live Audio ♾️</div>
+        <div class="level-pill" data-tts="live" onclick="selectTTS(this)">Live Audio ♾️</div>
         <div class="level-pill" data-tts="gemini" onclick="selectTTS(this)">Gemini TTS</div>
         <div class="level-pill" data-tts="browser" onclick="selectTTS(this)">Browser TTS</div>
-        <div class="level-pill" data-tts="none" onclick="selectTTS(this)">テキストのみ</div>
+        <div class="level-pill selected" data-tts="none" onclick="selectTTS(this)">テキストのみ</div>
       </div>
     </div>
 
@@ -737,6 +917,18 @@ body::before {
     </div>
 
     <button class="start-btn" onclick="startChat()">会話を始める →</button>
+
+    <!-- Session History -->
+    <div class="session-history" id="sessionHistory" style="display:none;">
+      <div class="session-history-header">
+        <span class="session-history-title">セッション履歴</span>
+        <button class="session-clear-all" onclick="deleteAllSessions()">全削除</button>
+      </div>
+      <div class="session-list" id="sessionList"></div>
+    </div>
+
+    <!-- Clear Cache -->
+    <button class="clear-cache-btn" onclick="clearAppCache()">データ消去</button>
   </div>
 </div>
 
@@ -776,7 +968,7 @@ body::before {
         <textarea class="text-input" id="textInput" placeholder="日本語または英語でどうぞ..." rows="1"
           onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
       </div>
-      <button class="send-btn" onclick="sendTextMessage()" title="送信">➤</button>
+      <button class="send-btn" id="sendBtn" onclick="sendTextMessage()" title="送信">➤</button>
       <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="音声入力">🎤</button>
     </div>
     <div class="input-hint" id="inputHint">Enterで送信 · Shift+Enterで改行 · 🎤で音声入力</div>
@@ -821,7 +1013,7 @@ body::before {
 // ===== CONFIG =====
 let API_KEY = localStorage.getItem('gemini_api_key') || '';
 let selectedModel = localStorage.getItem('gemini_model') || 'gemini-2.5-flash-lite';
-let selectedTTSEngine = localStorage.getItem('gemini_tts') || 'live';
+let selectedTTSEngine = localStorage.getItem('gemini_tts') || 'none';
 const getApiUrl = () => `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${API_KEY}`;
 
 // ===== STATE =====
@@ -833,6 +1025,7 @@ let sessionStartTime = null;
 let sessionTimer = null;
 let messageCount = 0;
 let vocabCount = 0;
+let sessionMessages = [];
 let isAISpeaking = false;
 let isListening = false;
 let recognition = null;
@@ -846,6 +1039,16 @@ let liveResolve = null;
 let liveReject = null;
 let liveAudioStore = {};
 let liveMessageId = 0;
+let liveTextChunks = [];
+let liveWsRetryCount = 0;
+let liveWsReconnecting = false;
+let isWaitingForResponse = false;
+
+// Persistent TTS WebSocket (fallback when conversation session drops)
+let ttsWs = null;
+let ttsAudioChunks = [];
+let ttsResolve = null;
+let ttsReject = null;
 
 // ===== PERSONAS =====
 const PERSONAS = {
@@ -958,8 +1161,15 @@ function initApp() {
   }
   const savedTTS = localStorage.getItem('gemini_tts');
   if (savedTTS) {
-    selectedTTSEngine = savedTTS;
-    document.querySelectorAll('[data-tts]').forEach(p => p.classList.toggle('selected', p.dataset.tts === savedTTS));
+    // Migrate: 'live' is no longer a startup default — voice mode is toggled in-chat
+    if (savedTTS === 'live') {
+      localStorage.setItem('gemini_tts', 'none');
+      selectedTTSEngine = 'none';
+      document.querySelectorAll('[data-tts]').forEach(p => p.classList.toggle('selected', p.dataset.tts === 'none'));
+    } else {
+      selectedTTSEngine = savedTTS;
+      document.querySelectorAll('[data-tts]').forEach(p => p.classList.toggle('selected', p.dataset.tts === savedTTS));
+    }
   }
   const savedLevel = localStorage.getItem('gemini_level');
   if (savedLevel) {
@@ -973,6 +1183,8 @@ function initApp() {
       p.style.pointerEvents = 'none';
     });
   }
+  // Load session history
+  loadSessions();
   // Show API key screen first if no key
   if (!API_KEY) {
     showScreen('apikey');
@@ -1026,6 +1238,7 @@ function startChat() {
   showScreen('chat');
 
   conversationHistory = [];
+  sessionMessages = [];
   messageCount = 0;
   vocabCount = 0;
   document.getElementById('messages').innerHTML = '';
@@ -1038,31 +1251,41 @@ function startChat() {
 
   // Initial greeting
   if (selectedTTSEngine === 'live') {
+    setInputLocked(true);
     openLiveSession().then(async () => {
       showTyping();
       try {
-        const audioData = await sendLiveMessage('ユーザーに挨拶してください。自己紹介をして、会話を始めてください。');
+        setStatus('考えています...');
+        const { audioData, textContent } = await sendLiveMessage('ユーザーに挨拶してください。自己紹介をして、会話を始めてください。');
         hideTyping();
         const msgId = 'live-' + (++liveMessageId);
         liveAudioStore[msgId] = audioData;
-        addMessage('ai', `<span class="live-audio-msg" onclick="replayLiveAudio('${msgId}')">🔊 音声で挨拶 <small>(タップで再生)</small></span>`, PERSONAS[selectedPersona].avatar, []);
-        setStatus('live');
+        const displayText = textContent || getGreeting();
+        const greetMsgEl = addMessage('ai', displayText + `<br><button class="replay-btn" onclick="replayLiveAudio('${msgId}')">🔊 再生</button>`, PERSONAS[selectedPersona].avatar, []);
+        conversationHistory.push({ role: 'model', parts: [{ text: textContent || getGreeting() }] });
+        // Fetch vocab in background
+        if (textContent) fetchLiveVocab(textContent, greetMsgEl);
         if (audioData) {
           isAISpeaking = true;
           setStatus('話しています...');
           document.getElementById('micBtn').className = 'mic-btn ai-speaking';
-          await playPCMAudio(audioData);
+          try { await playPCMAudio(audioData); } catch(e) { console.warn('Audio playback error:', e); }
           isAISpeaking = false;
-          setStatus('live');
           document.getElementById('micBtn').className = 'mic-btn';
         }
+        setStatus('live');
       } catch(e) {
         hideTyping();
+        isAISpeaking = false;
+        document.getElementById('micBtn').className = 'mic-btn';
         console.warn('Live greeting failed, using text:', e);
         sendAIMessage(getGreeting());
+      } finally {
+        setInputLocked(false);
       }
     }).catch(e => {
       console.warn('Live session failed, falling back to REST:', e);
+      setInputLocked(false);
       setTimeout(() => sendAIMessage(getGreeting()), 400);
     });
   } else {
@@ -1081,9 +1304,12 @@ function getGreeting() {
 }
 
 function goBack() {
+  saveSession();
   if (sessionTimer) clearInterval(sessionTimer);
   closeLiveSession();
+  closeTtsSession();
   showScreen('landing');
+  loadSessions();
 }
 
 function showScreen(id) {
@@ -1095,7 +1321,7 @@ function showScreen(id) {
 async function sendTextMessage() {
   const input = document.getElementById('textInput');
   const text = input.value.trim();
-  if (!text || isAISpeaking) return;
+  if (!text || isAISpeaking || isWaitingForResponse) return;
   input.value = '';
   input.style.height = '44px';
   await processUserMessage(text);
@@ -1109,28 +1335,36 @@ async function processUserMessage(text) {
 
   // Live API WebSocket mode
   if (liveWs && liveWs.readyState === WebSocket.OPEN) {
+    setInputLocked(true);
     try {
-      const audioData = await sendLiveMessage(text);
+      setStatus('考えています...');
+      const { audioData, textContent } = await sendLiveMessage(text);
       hideTyping();
       const msgId = 'live-' + (++liveMessageId);
       liveAudioStore[msgId] = audioData;
-      addMessage('ai', `<span class="live-audio-msg" onclick="replayLiveAudio('${msgId}')">🔊 音声応答 <small>(タップで再生)</small></span>`, PERSONAS[selectedPersona].avatar, []);
-      conversationHistory.push({ role: 'model', parts: [{ text: '(audio response)' }] });
+      const displayText = textContent || '🔊 音声応答';
+      const liveMsgEl = addMessage('ai', displayText + `<br><button class="replay-btn" onclick="replayLiveAudio('${msgId}')">🔊 再生</button>`, PERSONAS[selectedPersona].avatar, []);
+      conversationHistory.push({ role: 'model', parts: [{ text: textContent || '(audio response)' }] });
       updateStats();
-      setStatus('live');
+      // Fetch vocab in background (don't await — let it append when ready)
+      if (textContent) fetchLiveVocab(textContent, liveMsgEl);
       if (audioData) {
         isAISpeaking = true;
         setStatus('話しています...');
         document.getElementById('micBtn').className = 'mic-btn ai-speaking';
-        await playPCMAudio(audioData);
+        try { await playPCMAudio(audioData); } catch(e) { console.warn('Audio playback error:', e); }
         isAISpeaking = false;
-        setStatus('live');
         document.getElementById('micBtn').className = 'mic-btn';
       }
+      setStatus('live');
     } catch(e) {
       hideTyping();
+      isAISpeaking = false;
+      document.getElementById('micBtn').className = 'mic-btn';
       console.error('Live API error:', e);
       addMessage('ai', `⚠️ ライブAPI接続エラー: ${e.message}`, PERSONAS[selectedPersona].avatar, []);
+    } finally {
+      setInputLocked(false);
     }
     return;
   }
@@ -1163,7 +1397,7 @@ async function processUserMessage(text) {
       updateStats();
       setStatus('live');
 
-      if (currentMode === 'voice') {
+      if (currentMode === 'voice' || selectedTTSEngine === 'live') {
         await speakText(mainText);
       }
     } else if (data.error) {
@@ -1190,7 +1424,7 @@ async function processUserMessage(text) {
             conversationHistory.push({ role: 'model', parts: [{ text: rawText }] });
             addMessage('ai', parsed.mainText, PERSONAS[selectedPersona].avatar, parsed.vocabs);
             updateStats(); setStatus('live');
-            if (currentMode === 'voice') await speakText(parsed.mainText);
+            if (currentMode === 'voice' || selectedTTSEngine === 'live') await speakText(parsed.mainText);
           } else {
             addMessage('ai', `⚠️ 再試行も失敗しました。別のモデルを選んでください。`, PERSONAS[selectedPersona].avatar, []);
           }
@@ -1238,6 +1472,58 @@ function addMessage(role, text, avatar, vocabs = []) {
   container.appendChild(msgEl);
   container.scrollTop = container.scrollHeight;
   messageCount++;
+
+  // Track for session save — strip replay buttons and HTML tags
+  let saveText = text.replace(/<button[^>]*class="replay-btn"[^>]*>.*?<\/button>/gi, '').replace(/<[^>]*>/g, '').replace(/\[VOCAB:[^\]]+\]/g, '').trim();
+  if (!saveText) saveText = '🔊 音声応答';
+  sessionMessages.push({ role, text: saveText });
+
+  return msgEl;
+}
+
+// Fetch vocab annotations for a Live API response and append chips to the message
+async function fetchLiveVocab(text, msgEl) {
+  if (!text || !API_KEY) return;
+  // Small delay to avoid competing with the main request for quota
+  await new Promise(r => setTimeout(r, 1500));
+  const prompt = `以下の日本語テキストから、${selectedLevel}レベルの学習者に役立つ3つの単語を抽出してください。各単語を [VOCAB:単語|読み方|英語の意味|短い例文] の形式で出力してください。それ以外は何も出力しないでください。\n\nテキスト: ${text}`;
+  const body = { contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 300 } };
+  const models = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-3.0-flash'];
+  let raw = '';
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`;
+      const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (resp.status === 429) continue; // rate limited, try next model
+      const data = await resp.json();
+      if (data.error) continue;
+      raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      if (raw) break;
+    } catch(e) { continue; }
+  }
+  if (!raw) return;
+  try {
+    const vocabs = [];
+    const vocabRegex = /\[VOCAB:([^|]+)\|([^|]+)\|([^|]+)\|([^\]]+)\]/g;
+    let match;
+    while ((match = vocabRegex.exec(raw)) !== null) {
+      vocabs.push({ word: match[1], reading: match[2], meaning: match[3], example: match[4] });
+      vocabCount++;
+    }
+    if (vocabs.length > 0) {
+      document.getElementById('statVocab').textContent = vocabCount;
+      const contentEl = msgEl.querySelector('.msg-content');
+      if (contentEl) {
+        const chipsEl = document.createElement('div');
+        chipsEl.className = 'vocab-chips';
+        chipsEl.innerHTML = vocabs.map(v =>
+          `<span class="vocab-chip" onclick="showVocabPopup('${escapeAttr(v.word)}','${escapeAttr(v.reading)}','${escapeAttr(v.meaning)}','${escapeAttr(v.example)}',this)">${v.word}</span>`
+        ).join('');
+        contentEl.appendChild(chipsEl);
+        document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+      }
+    }
+  } catch(e) { /* silently skip */ }
 }
 
 function formatText(text) {
@@ -1277,7 +1563,7 @@ async function sendAIMessage(text) {
   const { mainText, vocabs } = parseAIResponse(text);
   addMessage('ai', mainText, PERSONAS[selectedPersona].avatar, vocabs);
   setStatus('live');
-  if (currentMode === 'voice') await speakText(mainText);
+  if (currentMode === 'voice' || selectedTTSEngine === 'live') await speakText(mainText);
 }
 
 function setStatus(state) {
@@ -1298,24 +1584,40 @@ function setStatus(state) {
 const TTS_VOICE_MAP = { sakura: 'Kore', sensei: 'Charon', kenta: 'Fenrir', master: 'Orus' };
 
 async function speakText(text) {
-  if (!text || selectedTTSEngine === 'none') return;
+  if (!text) return;
+  // Skip TTS if engine is 'none' AND not in voice mode
+  if (selectedTTSEngine === 'none' && currentMode !== 'voice') return;
   // In live mode with active WebSocket, audio already came with the response
   if (liveWs && liveWs.readyState === WebSocket.OPEN) return;
   isAISpeaking = true;
   setStatus('話しています...');
   document.getElementById('micBtn').className = 'mic-btn ai-speaking';
 
+  // Determine effective engine: voice mode overrides 'none' with fallback chain
+  const engine = (selectedTTSEngine === 'none' && currentMode === 'voice') ? 'live' : selectedTTSEngine;
+
   try {
-    if (selectedTTSEngine === 'live') {
-      await speakWithLiveAPI(text);
-    } else if (selectedTTSEngine === 'browser') {
+    if (engine === 'live') {
+      // Live WS → Gemini REST TTS → Browser TTS
+      let spoke = false;
+      try { await speakWithLiveAPI(text); spoke = true; } catch(e1) {
+        console.warn('Live TTS failed:', e1.message);
+      }
+      if (!spoke) try { await speakWithGeminiTTS(text); spoke = true; } catch(e2) {
+        console.warn('Gemini REST TTS failed:', e2.message);
+      }
+      if (!spoke) try { await speakWithBrowserTTS(text); } catch(e3) {
+        console.warn('Browser TTS failed:', e3);
+      }
+    } else if (engine === 'browser') {
       await speakWithBrowserTTS(text);
     } else {
-      await speakWithGeminiTTS(text);
+      try { await speakWithGeminiTTS(text); }
+      catch(e) { console.warn('Gemini TTS failed, trying browser:', e.message); await speakWithBrowserTTS(text); }
     }
   } catch (e) {
-    console.warn('TTS failed, trying browser fallback:', e);
-    try { await speakWithBrowserTTS(text); } catch (e2) { console.warn('Browser TTS also failed:', e2); }
+    console.warn('TTS failed:', e);
+    try { await speakWithBrowserTTS(text); } catch(e2) {}
   }
 
   isAISpeaking = false;
@@ -1342,21 +1644,19 @@ async function speakWithGeminiTTS(text) {
   await playPCMAudio(audioData);
 }
 
-// -- Live API WebSocket TTS (unlimited quota) --
-async function speakWithLiveAPI(text) {
+// -- Live API Persistent TTS Session (unlimited quota) --
+function openTtsSession() {
   return new Promise((resolve, reject) => {
+    let setupDone = false;
     const wsUrl = `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=${API_KEY}`;
-    const ws = new WebSocket(wsUrl);
-    const audioChunks = [];
-    let resolved = false;
-    const finish = (fn) => { if (!resolved) { resolved = true; fn(); } };
-    const timer = setTimeout(() => { try { ws.close(); } catch(e) {} finish(() => reject(new Error('Live API timeout'))); }, 30000);
+    ttsWs = new WebSocket(wsUrl);
+    ttsAudioChunks = [];
 
-    ws.onopen = () => {
+    ttsWs.onopen = () => {
       const voiceName = TTS_VOICE_MAP[selectedPersona] || 'Kore';
-      ws.send(JSON.stringify({
+      ttsWs.send(JSON.stringify({
         setup: {
-          model: 'models/gemini-2.5-flash-native-audio-dialog',
+          model: 'models/gemini-2.5-flash-native-audio-preview-12-2025',
           generationConfig: {
             responseModalities: ['AUDIO'],
             speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
@@ -1365,37 +1665,96 @@ async function speakWithLiveAPI(text) {
       }));
     };
 
-    ws.onmessage = async (event) => {
+    ttsWs.onmessage = async (event) => {
       try {
         const raw = typeof event.data === 'string' ? event.data : await event.data.text();
         const msg = JSON.parse(raw);
         if (msg.setupComplete) {
-          ws.send(JSON.stringify({
-            clientContent: {
-              turns: [{ role: 'user', parts: [{ text: `次のテキストを声に出して読んでください: ${text}` }] }],
-              turnComplete: true
-            }
-          }));
+          setupDone = true;
+          resolve();
         } else if (msg.serverContent) {
           const parts = msg.serverContent.modelTurn?.parts || [];
           for (const part of parts) {
-            if (part.inlineData?.data) audioChunks.push(part.inlineData.data);
+            if (part.inlineData?.data) ttsAudioChunks.push(part.inlineData.data);
           }
-          if (msg.serverContent.turnComplete) {
-            clearTimeout(timer);
-            try { ws.close(); } catch(e) {}
-            if (audioChunks.length > 0) {
-              try { await playPCMAudio(audioChunks.join('')); finish(resolve); }
-              catch(e) { finish(() => reject(e)); }
-            } else { finish(resolve); }
+          if (msg.serverContent.turnComplete && ttsResolve) {
+            const audioData = ttsAudioChunks.join('');
+            ttsAudioChunks = [];
+            const fn = ttsResolve;
+            ttsResolve = null;
+            ttsReject = null;
+            fn(audioData);
           }
         }
-      } catch(e) { clearTimeout(timer); finish(() => reject(e)); }
+      } catch(e) {
+        if (!setupDone) { reject(e); return; }
+        if (ttsReject) { const fn = ttsReject; ttsResolve = null; ttsReject = null; fn(e); }
+      }
     };
 
-    ws.onerror = () => { clearTimeout(timer); finish(() => reject(new Error('WebSocket error'))); };
-    ws.onclose = () => { clearTimeout(timer); finish(resolve); };
+    ttsWs.onerror = () => {
+      if (!setupDone) reject(new Error('TTS WebSocket error'));
+      else if (ttsReject) { const fn = ttsReject; ttsResolve = null; ttsReject = null; fn(new Error('TTS WebSocket error')); }
+    };
+
+    ttsWs.onclose = () => {
+      if (!setupDone) reject(new Error('TTS WebSocket closed during setup'));
+      else if (ttsReject) { const fn = ttsReject; ttsResolve = null; ttsReject = null; fn(new Error('TTS WebSocket closed')); }
+      ttsWs = null;
+    };
+
+    setTimeout(() => {
+      if (!setupDone) {
+        reject(new Error('TTS connection timeout'));
+        try { ttsWs.close(); } catch(e) {}
+        ttsWs = null;
+      }
+    }, 10000);
   });
+}
+
+function closeTtsSession() {
+  if (ttsWs) {
+    try { ttsWs.close(); } catch(e) {}
+    ttsWs = null;
+    ttsResolve = null;
+    ttsReject = null;
+    ttsAudioChunks = [];
+  }
+}
+
+async function speakWithLiveAPI(text) {
+  // Open TTS session if not connected
+  if (!ttsWs || ttsWs.readyState !== WebSocket.OPEN) {
+    await openTtsSession();
+  }
+
+  const audioData = await new Promise((resolve, reject) => {
+    ttsAudioChunks = [];
+    ttsResolve = resolve;
+    ttsReject = reject;
+
+    ttsWs.send(JSON.stringify({
+      clientContent: {
+        turns: [{ role: 'user', parts: [{ text }] }],
+        turnComplete: true
+      }
+    }));
+
+    setTimeout(() => {
+      if (ttsResolve === resolve) {
+        ttsResolve = null;
+        ttsReject = null;
+        reject(new Error('TTS response timeout'));
+      }
+    }, 30000);
+  });
+
+  if (audioData) {
+    await playPCMAudio(audioData);
+  } else {
+    throw new Error('No audio data from TTS session');
+  }
 }
 
 // -- Browser SpeechSynthesis TTS --
@@ -1406,6 +1765,11 @@ function speakWithBrowserTTS(text) {
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.lang = 'ja-JP';
     utterance.rate = 0.9;
+    // Pick the best available Japanese voice (prefer female/Kyoko/O-Ren)
+    const voices = speechSynthesis.getVoices();
+    const jpVoice = voices.find(v => v.lang.startsWith('ja') && /kyoko|o-ren|haruka|female/i.test(v.name))
+      || voices.find(v => v.lang.startsWith('ja'));
+    if (jpVoice) utterance.voice = jpVoice;
     utterance.onend = resolve;
     utterance.onerror = () => resolve();
     speechSynthesis.speak(utterance);
@@ -1464,12 +1828,13 @@ function openLiveSession() {
       const voiceName = TTS_VOICE_MAP[selectedPersona] || 'Kore';
       liveWs.send(JSON.stringify({
         setup: {
-          model: 'models/gemini-2.5-flash-native-audio-dialog',
+          model: 'models/gemini-2.5-flash-native-audio-preview-12-2025',
           generationConfig: {
             responseModalities: ['AUDIO'],
             speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName } } }
           },
-          systemInstruction: { parts: [{ text: persona.systemPrompt(selectedLevel) }] }
+          outputAudioTranscription: {},
+          systemInstruction: { parts: [{ text: persona.systemPrompt(selectedLevel) + '\n\nこれは音声会話です。[VOCAB]タグは含めないでください。自然な会話だけを話してください。' }] }
         }
       }));
     };
@@ -1480,20 +1845,28 @@ function openLiveSession() {
         const msg = JSON.parse(raw);
 
         if (msg.setupComplete) {
+          liveWsRetryCount = 0;
           resolve();
         } else if (msg.serverContent) {
+          // Collect audio from modelTurn parts (skip .text — that's thinking/reasoning)
           const parts = msg.serverContent.modelTurn?.parts || [];
           for (const part of parts) {
             if (part.inlineData?.data) liveAudioChunks.push(part.inlineData.data);
           }
+          // Collect transcription of what was actually spoken
+          if (msg.serverContent.outputTranscription?.text) {
+            liveTextChunks.push(msg.serverContent.outputTranscription.text);
+          }
           if (msg.serverContent.turnComplete) {
             if (liveResolve) {
               const audioData = liveAudioChunks.join('');
+              const textContent = liveTextChunks.join('').trim();
               liveAudioChunks = [];
+              liveTextChunks = [];
               const fn = liveResolve;
               liveResolve = null;
               liveReject = null;
-              fn(audioData);
+              fn({ audioData, textContent });
             }
           }
         }
@@ -1527,6 +1900,10 @@ function openLiveSession() {
         fn(new Error('WebSocket closed'));
       }
       liveWs = null;
+      // Auto-reconnect if still on chat screen and in voice/live mode
+      if (document.getElementById('chat').classList.contains('active') && (selectedTTSEngine === 'live' || currentMode === 'voice')) {
+        reconnectLiveSession();
+      }
     };
 
     setTimeout(() => {
@@ -1547,11 +1924,51 @@ function closeLiveSession() {
     liveReject = null;
     liveAudioChunks = [];
   }
+  liveTextChunks = [];
+  liveWsRetryCount = 0;
+  liveWsReconnecting = false;
+  isWaitingForResponse = false;
+}
+
+async function reconnectLiveSession() {
+  if (liveWsReconnecting || liveWsRetryCount >= 3) return;
+  liveWsReconnecting = true;
+  liveWsRetryCount++;
+  const delay = liveWsRetryCount * 2000;
+  console.log(`Live WS reconnect attempt ${liveWsRetryCount}/3 in ${delay}ms`);
+  setStatus('再接続中...');
+  await new Promise(r => setTimeout(r, delay));
+  try {
+    await openLiveSession();
+    liveWsReconnecting = false;
+    setStatus('live');
+    console.log('Live WS reconnected');
+  } catch(e) {
+    liveWsReconnecting = false;
+    console.warn('Live WS reconnect failed:', e.message);
+    if (liveWsRetryCount < 3) {
+      reconnectLiveSession();
+    } else {
+      setStatus('接続切断');
+    }
+  }
+}
+
+function setInputLocked(locked) {
+  isWaitingForResponse = locked;
+  const input = document.getElementById('textInput');
+  const btn = document.getElementById('sendBtn');
+  if (input) {
+    input.disabled = locked;
+    input.placeholder = locked ? '応答を待っています...' : '日本語または英語でどうぞ...';
+  }
+  if (btn) btn.disabled = locked;
 }
 
 async function sendLiveMessage(text) {
   return new Promise((resolve, reject) => {
     liveAudioChunks = [];
+    liveTextChunks = [];
     liveResolve = resolve;
     liveReject = reject;
 
@@ -1629,13 +2046,31 @@ function stopListening() {
 }
 
 // ===== MODE =====
-function setMode(mode) {
+async function setMode(mode) {
   currentMode = mode;
   document.getElementById('modeText').className = mode === 'text' ? 'mode-btn active' : 'mode-btn';
   document.getElementById('modeVoice').className = mode === 'voice' ? 'mode-btn active' : 'mode-btn';
   document.getElementById('inputHint').textContent = mode === 'voice'
     ? '🎤 音声モード: AIの返答を音声で聞けます'
     : 'Enterで送信 · Shift+Enterで改行 · 🎤で音声入力';
+
+  if (mode === 'voice') {
+    // Open Live session for voice mode
+    if (!liveWs || liveWs.readyState !== WebSocket.OPEN) {
+      setStatus('接続中...');
+      try {
+        await openLiveSession();
+        setStatus('live');
+      } catch(e) {
+        console.warn('Failed to open live session for voice mode:', e);
+        setStatus('live');
+      }
+    }
+  } else {
+    // Close Live session when switching to text
+    closeLiveSession();
+    closeTtsSession();
+  }
 }
 
 // ===== VOCAB POPUP =====
@@ -1662,7 +2097,10 @@ document.addEventListener('click', (e) => {
 
 // ===== UTILS =====
 function handleKeyDown(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendTextMessage(); }
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    if (!isWaitingForResponse) sendTextMessage();
+  }
 }
 
 function autoResize(el) {
@@ -1688,6 +2126,148 @@ function toggleTranslationMode(checkbox) {
     if (showTranslation) m.classList.add('show-translation');
     else m.classList.remove('show-translation');
   });
+}
+
+// ===== SESSION SAVE / HISTORY =====
+function saveSession() {
+  if (sessionMessages.length === 0) return;
+  const elapsed = sessionStartTime ? Math.floor((Date.now() - sessionStartTime) / 1000) : 0;
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+  const persona = PERSONAS[selectedPersona];
+  const session = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+    date: new Date().toISOString(),
+    persona: selectedPersona,
+    personaName: persona.name,
+    personaAvatar: persona.avatar,
+    level: selectedLevel,
+    duration: `${m}:${s.toString().padStart(2,'0')}`,
+    messageCount: sessionMessages.length,
+    vocabCount: vocabCount,
+    messages: sessionMessages.slice()
+  };
+  const sessions = JSON.parse(localStorage.getItem('livetalk_sessions') || '[]');
+  sessions.unshift(session);
+  if (sessions.length > 20) sessions.length = 20;
+  localStorage.setItem('livetalk_sessions', JSON.stringify(sessions));
+}
+
+function loadSessions() {
+  const sessions = JSON.parse(localStorage.getItem('livetalk_sessions') || '[]');
+  const container = document.getElementById('sessionHistory');
+  const list = document.getElementById('sessionList');
+  if (sessions.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+  container.style.display = 'block';
+  list.innerHTML = sessions.map(s => {
+    const d = new Date(s.date);
+    const dateStr = `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${d.getMinutes().toString().padStart(2,'0')}`;
+    return `<div class="session-card" id="sc-${s.id}">
+      <div class="session-card-header" onclick="viewSession('${s.id}')">
+        <span class="session-card-avatar">${s.personaAvatar}</span>
+        <div class="session-card-info">
+          <div class="session-card-date">${s.personaName || s.persona} · ${dateStr}</div>
+          <div class="session-card-meta">
+            <span>${s.level}</span>
+            <span>⏱${s.duration}</span>
+            <span>💬${s.messageCount}</span>
+            ${s.vocabCount ? `<span>📖${s.vocabCount}</span>` : ''}
+          </div>
+        </div>
+        <button class="session-card-resume" onclick="event.stopPropagation();resumeSession('${s.id}')">再開</button>
+        <button class="session-card-delete" onclick="event.stopPropagation();deleteSession('${s.id}')" title="削除">✕</button>
+      </div>
+      <div class="session-messages" id="sm-${s.id}">
+        ${s.messages.map(m => `<div class="session-msg ${m.role}">${m.text.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function viewSession(id) {
+  const el = document.getElementById('sm-' + id);
+  if (el) el.classList.toggle('open');
+}
+
+function resumeSession(id) {
+  if (!API_KEY) { showScreen('apikey'); return; }
+  const sessions = JSON.parse(localStorage.getItem('livetalk_sessions') || '[]');
+  const session = sessions.find(s => s.id === id);
+  if (!session) return;
+
+  // Remove old entry so it doesn't duplicate on next save
+  const remaining = sessions.filter(s => s.id !== id);
+  localStorage.setItem('livetalk_sessions', JSON.stringify(remaining));
+
+  // Restore persona & level
+  selectedPersona = session.persona;
+  selectedLevel = session.level;
+  const persona = PERSONAS[selectedPersona];
+
+  // Set up chat screen
+  document.getElementById('chatAvatar').textContent = persona.avatar;
+  document.getElementById('chatName').textContent = persona.name;
+  document.getElementById('chatStatus').textContent = '再開中...';
+  document.getElementById('chatStatus').className = 'chat-persona-status';
+  showScreen('chat');
+
+  // Reset state
+  conversationHistory = [];
+  sessionMessages = [];
+  messageCount = 0;
+  vocabCount = 0;
+  document.getElementById('messages').innerHTML = '';
+  document.getElementById('statMessages').textContent = '0';
+  document.getElementById('statVocab').textContent = '0';
+
+  // Reload messages into UI and rebuild conversation history
+  session.messages.forEach(m => {
+    if (m.role === 'user') {
+      addMessage('user', m.text, '🧑');
+      conversationHistory.push({ role: 'user', parts: [{ text: m.text }] });
+    } else {
+      addMessage('ai', m.text, persona.avatar, []);
+      const apiText = m.text === '🔊 音声応答' ? '(audio response)' : m.text;
+      conversationHistory.push({ role: 'model', parts: [{ text: apiText }] });
+    }
+  });
+
+  // Start timer
+  sessionStartTime = Date.now();
+  if (sessionTimer) clearInterval(sessionTimer);
+  sessionTimer = setInterval(updateTimer, 1000);
+  setStatus('live');
+
+  // Open live session if needed
+  if (selectedTTSEngine === 'live') {
+    openLiveSession().catch(e => console.warn('Live session failed on resume:', e));
+  }
+}
+
+function deleteSession(id) {
+  let sessions = JSON.parse(localStorage.getItem('livetalk_sessions') || '[]');
+  sessions = sessions.filter(s => s.id !== id);
+  localStorage.setItem('livetalk_sessions', JSON.stringify(sessions));
+  const card = document.getElementById('sc-' + id);
+  if (card) card.remove();
+  if (sessions.length === 0) document.getElementById('sessionHistory').style.display = 'none';
+}
+
+function deleteAllSessions() {
+  if (!confirm('すべてのセッション履歴を削除しますか？')) return;
+  localStorage.removeItem('livetalk_sessions');
+  loadSessions();
+}
+
+function clearAppCache() {
+  if (!confirm('APIキー以外のすべてのデータを消去しますか？\n（設定、セッション履歴など）')) return;
+  const apiKey = localStorage.getItem('gemini_api_key');
+  localStorage.clear();
+  if (apiKey) localStorage.setItem('gemini_api_key', apiKey);
+  location.reload();
 }
 
 // Init on load
