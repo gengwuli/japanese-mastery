@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日本語ライブトーク — AI Native Speaker</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;500&family=Shippori+Mincho:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --washi: #f7f3eb;
+  --washi-dark: #ede7d9;
+  --ink: #1a1410;
+  --ink-soft: #3d3428;
+  --ink-faint: #7a6e5f;
+  --vermillion: #c0392b;
+  --vermillion-light: #e8534a;
+  --gold: #b8860b;
+  --gold-light: #d4a017;
+  --sage: #5a7a5a;
+  --indigo: #2c3e6b;
+  --paper-shadow: 0 2px 20px rgba(26,20,16,0.08), 0 1px 4px rgba(26,20,16,0.05);
+  --paper-shadow-lg: 0 8px 40px rgba(26,20,16,0.12), 0 2px 8px rgba(26,20,16,0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--washi);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Washi texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: 
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ===== SCREENS ===== */
+.screen { display: none; min-height: 100vh; position: relative; z-index: 1; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ===== LANDING ===== */
+#landing {
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.landing-inner {
+  max-width: 680px;
+  width: 100%;
+  text-align: center;
+}
+
+.mon {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 64px;
+  color: var(--vermillion);
+  line-height: 1;
+  margin-bottom: 8px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.1s;
+}
+
+.landing-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 2.6em;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.2;
+  margin-bottom: 6px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.3s;
+}
+
+.landing-sub {
+  font-size: 0.95em;
+  color: var(--ink-faint);
+  margin-bottom: 48px;
+  letter-spacing: 0.5px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.5s;
+}
+
+.persona-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.7s;
+}
+
+.persona-card {
+  background: #fff;
+  border: 1.5px solid var(--washi-dark);
+  border-radius: 12px;
+  padding: 20px 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--paper-shadow);
+}
+
+.persona-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 60%, rgba(192,57,43,0.04));
+  pointer-events: none;
+}
+
+.persona-card:hover {
+  border-color: var(--vermillion);
+  transform: translateY(-2px);
+  box-shadow: var(--paper-shadow-lg);
+}
+
+.persona-card.selected {
+  border-color: var(--vermillion);
+  background: #fff9f8;
+}
+
+.persona-card.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 10px; right: 12px;
+  color: var(--vermillion);
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.persona-avatar {
+  font-size: 32px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.persona-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1.15em;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.persona-name-en {
+  font-size: 0.75em;
+  color: var(--ink-faint);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.persona-desc {
+  font-size: 0.8em;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.persona-badge {
+  display: inline-block;
+  font-size: 0.68em;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-top: 8px;
+  font-weight: 500;
+}
+.badge-beginner { background: #e8f5e9; color: #2e7d32; }
+.badge-intermediate { background: #fff3e0; color: #e65100; }
+.badge-advanced { background: #fce4ec; color: #880e4f; }
+.badge-immersive { background: #e8eaf6; color: #283593; }
+
+.level-selector {
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.8s;
+}
+
+.level-label {
+  font-size: 0.8em;
+  color: var(--ink-faint);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.level-pills {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.level-pill {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--washi-dark);
+  background: #fff;
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+.level-pill:hover { border-color: var(--vermillion); }
+.level-pill.selected { background: var(--vermillion); border-color: var(--vermillion); color: #fff; }
+
+.api-notice {
+  background: #fff;
+  border: 1px solid var(--washi-dark);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  font-size: 0.82em;
+  color: var(--ink-soft);
+  line-height: 1.7;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 0.9s;
+}
+
+.start-btn {
+  background: var(--vermillion);
+  color: #fff;
+  border: none;
+  padding: 16px 48px;
+  border-radius: 40px;
+  font-size: 1em;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 20px rgba(192,57,43,0.3);
+  opacity: 0;
+  animation: fadeUp 0.8s ease forwards 1s;
+}
+
+.start-btn:hover {
+  background: var(--vermillion-light);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(192,57,43,0.4);
+}
+
+/* ===== CHAT SCREEN ===== */
+#chat {
+  flex-direction: column;
+  height: 100vh;
+}
+
+.chat-header {
+  background: #fff;
+  border-bottom: 1px solid var(--washi-dark);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 8px rgba(26,20,16,0.05);
+  z-index: 10;
+}
+
+.back-btn {
+  background: none;
+  border: 1.5px solid var(--washi-dark);
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.8em;
+  color: var(--ink-faint);
+  transition: all 0.15s;
+}
+.back-btn:hover { border-color: var(--ink-soft); color: var(--ink); }
+
+.chat-persona-avatar { font-size: 28px; }
+
+.chat-persona-info { flex: 1; }
+.chat-persona-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+.chat-persona-status {
+  font-size: 0.75em;
+  color: var(--ink-faint);
+}
+.chat-persona-status.live { color: var(--sage); }
+.chat-persona-status.live::before {
+  content: '● ';
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.mode-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--washi-dark);
+  border-radius: 8px;
+  padding: 3px;
+}
+.mode-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  font-size: 0.75em;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Noto Sans JP', sans-serif;
+  color: var(--ink-faint);
+}
+.mode-btn.active { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+/* Messages */
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-behavior: smooth;
+}
+
+.message {
+  display: flex;
+  gap: 10px;
+  max-width: 75%;
+  animation: fadeUp 0.3s ease;
+}
+
+.message.user { align-self: flex-end; flex-direction: row-reverse; }
+.message.ai { align-self: flex-start; }
+
+.msg-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.message.ai .msg-avatar { background: var(--washi-dark); }
+.message.user .msg-avatar { background: #e8f0fe; }
+
+.msg-content { display: flex; flex-direction: column; gap: 4px; }
+
+.msg-bubble {
+  padding: 12px 16px;
+  border-radius: 12px;
+  line-height: 1.8;
+  font-size: 0.93em;
+}
+.message.ai .msg-bubble {
+  background: #fff;
+  border: 1px solid var(--washi-dark);
+  border-radius: 4px 12px 12px 12px;
+}
+.message.user .msg-bubble {
+  background: var(--vermillion);
+  color: #fff;
+  border-radius: 12px 4px 12px 12px;
+}
+
+.msg-romaji {
+  font-size: 0.75em;
+  color: var(--ink-faint);
+  padding: 0 4px;
+  font-style: italic;
+  display: none;
+}
+.show-romaji .msg-romaji { display: block; }
+
+.msg-translation {
+  font-size: 0.78em;
+  color: var(--indigo);
+  padding: 0 4px;
+  display: none;
+}
+.show-translation .msg-translation { display: block; }
+
+.vocab-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.vocab-chip {
+  background: #fff9f0;
+  border: 1px solid #f0d080;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 0.72em;
+  color: var(--gold);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.vocab-chip:hover { background: #f0d080; color: var(--ink); }
+
+/* Typing indicator */
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid var(--washi-dark);
+  border-radius: 4px 12px 12px 12px;
+  width: fit-content;
+}
+.typing-dot {
+  width: 7px; height: 7px;
+  background: var(--ink-faint);
+  border-radius: 50%;
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Input area */
+.input-area {
+  background: #fff;
+  border-top: 1px solid var(--washi-dark);
+  padding: 16px 24px 20px;
+  flex-shrink: 0;
+}
+
+.input-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.text-input-wrap {
+  flex: 1;
+  position: relative;
+}
+
+.text-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--washi-dark);
+  border-radius: 24px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 0.9em;
+  background: var(--washi);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s;
+  resize: none;
+  height: 44px;
+  min-height: 44px;
+  max-height: 120px;
+  overflow-y: auto;
+  line-height: 1.4;
+}
+.text-input:focus { border-color: var(--vermillion); }
+
+.send-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--vermillion);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  font-size: 16px;
+}
+.send-btn:hover { background: var(--vermillion-light); transform: scale(1.05); }
+
+/* MIC BUTTON */
+.mic-btn {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 2.5px solid var(--washi-dark);
+  background: #fff;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.mic-btn:hover { border-color: var(--vermillion); }
+
+.mic-btn.listening {
+  background: var(--vermillion);
+  border-color: var(--vermillion);
+  animation: micPulse 1.5s ease-in-out infinite;
+}
+
+.mic-btn.listening::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--vermillion);
+  animation: micRing 1.5s ease-out infinite;
+}
+
+.mic-btn.ai-speaking {
+  background: var(--sage);
+  border-color: var(--sage);
+}
+
+.input-hint {
+  text-align: center;
+  font-size: 0.72em;
+  color: var(--ink-faint);
+  margin-top: 8px;
+}
+
+/* ===== VOCAB POPUP ===== */
+.vocab-popup {
+  position: fixed;
+  background: #fff;
+  border: 1.5px solid var(--gold);
+  border-radius: 12px;
+  padding: 16px 20px;
+  max-width: 280px;
+  box-shadow: var(--paper-shadow-lg);
+  z-index: 100;
+  display: none;
+  animation: fadeUp 0.2s ease;
+}
+
+.vocab-popup.show { display: block; }
+
+.vocab-popup-word {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 1.6em;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+.vocab-popup-reading {
+  font-size: 0.8em;
+  color: var(--ink-faint);
+  margin-bottom: 6px;
+}
+.vocab-popup-meaning {
+  font-size: 0.88em;
+  color: var(--indigo);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.vocab-popup-example {
+  font-size: 0.78em;
+  color: var(--ink-soft);
+  line-height: 1.6;
+  padding: 8px 10px;
+  background: var(--washi);
+  border-radius: 6px;
+}
+.vocab-close {
+  position: absolute;
+  top: 8px; right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-faint);
+  font-size: 14px;
+}
+
+/* Session stats bar */
+.session-bar {
+  background: var(--washi-dark);
+  padding: 8px 24px;
+  display: flex;
+  gap: 24px;
+  font-size: 0.75em;
+  color: var(--ink-faint);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  flex-shrink: 0;
+}
+.stat-item { display: flex; align-items: center; gap: 4px; }
+.stat-val { font-weight: 600; color: var(--ink-soft); }
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes typingBounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes micPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(192,57,43,0.4); }
+  50% { box-shadow: 0 0 0 10px rgba(192,57,43,0); }
+}
+
+@keyframes micRing {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* Vertical Japanese text decoration */
+.jp-deco {
+  position: fixed;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+  font-family: 'Shippori Mincho', serif;
+  font-size: 11px;
+  color: rgba(26,20,16,0.08);
+  letter-spacing: 4px;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--washi-dark); border-radius: 2px; }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .persona-grid { grid-template-columns: 1fr; }
+  .landing-title { font-size: 2em; }
+  .mon { font-size: 48px; }
+  .message { max-width: 90%; }
+}
+</style>
+</head>
+<body>
+
+<div class="jp-deco">日本語会話練習　ライブトーク</div>
+
+<!-- ===== LANDING ===== -->
+<div class="screen active" id="landing">
+  <div class="landing-inner">
+    <div class="mon">話</div>
+    <h1 class="landing-title">日本語ライブトーク</h1>
+    <p class="landing-sub">AI Native Speaker Conversation Practice</p>
+
+    <div class="persona-grid">
+      <div class="persona-card selected" data-persona="sakura" onclick="selectPersona(this)">
+        <span class="persona-avatar">🌸</span>
+        <div class="persona-name">さくら</div>
+        <span class="persona-name-en">Sakura · Tokyo Friend</span>
+        <div class="persona-desc">東京育ちの大学生。カジュアルな日本語で自然な会話ができます。</div>
+        <span class="persona-badge badge-beginner">N4〜N3 friendly</span>
+      </div>
+      <div class="persona-card" data-persona="sensei" onclick="selectPersona(this)">
+        <span class="persona-avatar">📚</span>
+        <div class="persona-name">田中先生</div>
+        <span class="persona-name-en">Tanaka-sensei · Patient Teacher</span>
+        <div class="persona-desc">ゆっくり、丁寧に話す日本語の先生。文法を優しく教えてくれます。</div>
+        <span class="persona-badge badge-beginner">N5〜N4 friendly</span>
+      </div>
+      <div class="persona-card" data-persona="kenta" onclick="selectPersona(this)">
+        <span class="persona-avatar">🎋</span>
+        <div class="persona-name">健太</div>
+        <span class="persona-name-en">Kenta · Osaka Dialect</span>
+        <div class="persona-desc">大阪出身のにぎやかなおにいさん。関西弁でしゃべりまくります！</div>
+        <span class="persona-badge badge-advanced">N2〜N1 · 上級向け</span>
+      </div>
+      <div class="persona-card" data-persona="master" onclick="selectPersona(this)">
+        <span class="persona-avatar">🍶</span>
+        <div class="persona-name">マスター</div>
+        <span class="persona-name-en">Master · Izakaya Owner</span>
+        <div class="persona-desc">老舗居酒屋のマスター。日本の食文化や昭和の話が大好き。</div>
+        <span class="persona-badge badge-immersive">フル・イマージョン</span>
+      </div>
+    </div>
+
+    <div class="level-selector">
+      <div class="level-label">あなたのレベル</div>
+      <div class="level-pills">
+        <div class="level-pill" data-level="N5" onclick="selectLevel(this)">N5 初心者</div>
+        <div class="level-pill selected" data-level="N4" onclick="selectLevel(this)">N4 基礎</div>
+        <div class="level-pill" data-level="N3" onclick="selectLevel(this)">N3 中級</div>
+        <div class="level-pill" data-level="N2" onclick="selectLevel(this)">N2 上級</div>
+        <div class="level-pill" data-level="N1" onclick="selectLevel(this)">N1 超上級</div>
+        <div class="level-pill" data-level="native" onclick="selectLevel(this)">ネイティブ</div>
+      </div>
+    </div>
+
+    <div class="api-notice" id="apiNotice">
+      <span>🔑</span>
+      <span id="apiNoticeText">APIキーを設定してください</span>
+      <button onclick="showScreen('apikey')" style="margin-left:auto;background:var(--vermillion);color:#fff;border:none;padding:4px 12px;border-radius:8px;cursor:pointer;font-size:0.85em;white-space:nowrap">設定 →</button>
+    </div>
+
+    <button class="start-btn" onclick="startChat()">会話を始める →</button>
+  </div>
+</div>
+
+<!-- ===== CHAT SCREEN ===== -->
+<div class="screen" id="chat">
+  <div class="chat-header">
+    <button class="back-btn" onclick="goBack()">← 戻る</button>
+    <div class="chat-persona-avatar" id="chatAvatar">🌸</div>
+    <div class="chat-persona-info">
+      <div class="chat-persona-name" id="chatName">さくら</div>
+      <div class="chat-persona-status" id="chatStatus">準備中...</div>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="modeText" onclick="setMode('text')">テキスト</button>
+      <button class="mode-btn" id="modeVoice" onclick="setMode('voice')">🎤 音声</button>
+    </div>
+  </div>
+
+  <div class="session-bar">
+    <div class="stat-item">💬 <span class="stat-val" id="statMessages">0</span> メッセージ</div>
+    <div class="stat-item">📖 <span class="stat-val" id="statVocab">0</span> 新単語</div>
+    <div class="stat-item">⏱ <span class="stat-val" id="statTime">0:00</span></div>
+    <div class="stat-item" style="margin-left:auto">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+        <input type="checkbox" id="toggleTranslation" onchange="toggleTranslationMode(this)"> 翻訳表示
+      </label>
+    </div>
+  </div>
+
+  <div class="messages-container" id="messages">
+    <!-- messages injected here -->
+  </div>
+
+  <div class="input-area">
+    <div class="input-controls">
+      <div class="text-input-wrap">
+        <textarea class="text-input" id="textInput" placeholder="日本語または英語でどうぞ..." rows="1"
+          onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+      </div>
+      <button class="send-btn" onclick="sendTextMessage()" title="送信">➤</button>
+      <button class="mic-btn" id="micBtn" onclick="toggleMic()" title="音声入力">🎤</button>
+    </div>
+    <div class="input-hint" id="inputHint">Enterで送信 · Shift+Enterで改行 · 🎤で音声入力</div>
+  </div>
+</div>
+
+<!-- ===== API KEY SCREEN ===== -->
+<div class="screen" id="apikey" style="align-items:center;justify-content:center;padding:40px 20px;">
+  <div style="max-width:480px;width:100%;text-align:center;">
+    <div style="font-size:48px;margin-bottom:16px;">🔑</div>
+    <h2 style="font-family:'Shippori Mincho',serif;font-size:1.8em;margin-bottom:8px;">Gemini API Key</h2>
+    <p style="color:var(--ink-faint);font-size:0.88em;margin-bottom:32px;line-height:1.7;">
+      <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--vermillion)">aistudio.google.com</a> からAPIキーを取得して入力してください。<br>
+      キーはブラウザのローカルストレージにのみ保存され、Googleの APIにのみ送信されます。
+    </p>
+    <div style="background:#fff;border:1.5px solid var(--washi-dark);border-radius:12px;padding:24px;box-shadow:var(--paper-shadow);">
+      <input type="password" id="apiKeyInput" placeholder="AIzaSy..." 
+        style="width:100%;padding:12px 16px;border:1.5px solid var(--washi-dark);border-radius:8px;font-size:0.9em;font-family:monospace;outline:none;margin-bottom:8px;background:var(--washi);"
+        oninput="this.style.borderColor='var(--washi-dark)'"
+        onkeydown="if(event.key==='Enter')saveApiKey()">
+      <div id="apiKeyError" style="color:var(--vermillion);font-size:0.8em;margin-bottom:12px;min-height:18px;"></div>
+      <button onclick="saveApiKey()" 
+        style="width:100%;background:var(--vermillion);color:#fff;border:none;padding:13px;border-radius:8px;font-size:0.95em;cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-weight:500;">
+        保存して始める
+      </button>
+      <div id="currentKeyStatus" style="margin-top:12px;font-size:0.78em;color:var(--ink-faint);"></div>
+    </div>
+    <button onclick="showScreen('landing')" style="margin-top:20px;background:none;border:none;color:var(--ink-faint);cursor:pointer;font-size:0.85em;">← 戻る</button>
+  </div>
+</div>
+
+<!-- Vocab popup -->
+<div class="vocab-popup" id="vocabPopup">
+  <button class="vocab-close" onclick="closeVocabPopup()">✕</button>
+  <div class="vocab-popup-word" id="vpWord"></div>
+  <div class="vocab-popup-reading" id="vpReading"></div>
+  <div class="vocab-popup-meaning" id="vpMeaning"></div>
+  <div class="vocab-popup-example" id="vpExample"></div>
+</div>
+
+<script>
+// ===== CONFIG =====
+let API_KEY = localStorage.getItem('gemini_api_key') || '';
+const getApiUrl = () => `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+
+// ===== STATE =====
+let selectedPersona = 'sakura';
+let selectedLevel = 'N4';
+let currentMode = 'text';
+let conversationHistory = [];
+let sessionStartTime = null;
+let sessionTimer = null;
+let messageCount = 0;
+let vocabCount = 0;
+let isAISpeaking = false;
+let isListening = false;
+let recognition = null;
+let showTranslation = false;
+let currentAudio = null;
+
+// ===== PERSONAS =====
+const PERSONAS = {
+  sakura: {
+    name: 'さくら',
+    nameEn: 'Sakura',
+    avatar: '🌸',
+    systemPrompt: (level) => `あなたは東京出身の23歳の大学生、さくらです。明るく、親切で、ユーザーの日本語の練習を助けています。
+
+ユーザーのJLPTレベルは${level}です。このレベルに合った語彙と文法を使ってください。
+
+重要なルール:
+- 自然な口語体で話す（「〜ね」「〜よ」「〜かな」「〜じゃん」などを使う）
+- ${level === 'N5' || level === 'N4' ? '難しい漢字にはひらがなを()で付ける' : ''}
+- ユーザーが英語で話しかけたら、日本語で返しつつ英語でも少し補足する
+- 会話の最後に必ず質問を付けて会話を続ける
+- ユーザーの間違いがあれば、自然な形で正しい表現を使って返事をする（直接指摘しすぎない）
+- 各返答の最後に [VOCAB] タグで3つの新しい単語を教える: 形式: [VOCAB:単語|読み方|英語の意味|例文]
+- 返答は2〜4文程度で、自然な会話の長さにする`,
+  },
+  sensei: {
+    name: '田中先生',
+    nameEn: 'Tanaka-sensei',
+    avatar: '📚',
+    systemPrompt: (level) => `あなたは経験豊富な日本語教師、田中先生です。丁寧で分かりやすい指導が得意です。
+
+ユーザーのJLPTレベルは${level}です。
+
+重要なルール:
+- ゆっくり、はっきりとした日本語で話す
+- 難しい単語には必ず読み方と意味を付ける（例：幕府（ばくふ）"shogunate"）
+- 文法ミスがあれば、「〜というのは〜とも言えますね」のように優しく訂正する
+- 会話の中で文法ポイントを1つ説明する
+- 各返答の最後に [VOCAB] タグで2〜3の単語: [VOCAB:単語|読み方|英語の意味|例文]
+- 敬語（〜です、〜ます体）を使う`,
+  },
+  kenta: {
+    name: '健太',
+    nameEn: 'Kenta',
+    avatar: '🎋',
+    systemPrompt: (level) => `あなたは大阪出身の28歳のサラリーマン、健太です。陽気でにぎやか、大阪弁が自慢です。
+
+ユーザーのJLPTレベルは${level}です（上級者向けなので難しくてOK）。
+
+重要なルール:
+- 関西弁を自然に使う（「〜やで」「〜やろ」「なんでやねん」「ほんまに」「めっちゃ」「あかん」「ちゃう」）
+- 標準語も少し混ぜてOK、でも基本は関西弁
+- 大阪の文化、食べ物（たこ焼き、お好み焼き）、笑いの文化について話す
+- 各返答の最後に [VOCAB] タグで関西弁の単語も含めて: [VOCAB:単語|読み方|英語の意味|例文]
+- テンポよく話す`,
+  },
+  master: {
+    name: 'マスター',
+    nameEn: 'Master',
+    avatar: '🍶',
+    systemPrompt: (level) => `あなたは東京・下北沢の老舗居酒屋「竹の間」のマスター、60代の島田さんです。昭和から続く居酒屋を守る、渋くて味のある人物。
+
+ユーザーのJLPTレベルは${level}です。
+
+重要なルール:
+- 落ち着いた、少し渋い話し方（「そうですねぇ」「〜ですよ」「〜ですかね」）
+- 日本の食文化、お酒の文化、昭和の話を自然に織り交ぜる
+- 居酒屋メニューの説明、旬の食材の話をする
+- 日本の四季と食、文化的な話題で会話を深める
+- 各返答の最後に [VOCAB] タグで日本食・居酒屋関連の単語: [VOCAB:単語|読み方|英語の意味|例文]
+- ゆったりとした雰囲気で話す`,
+  }
+};
+
+// ===== API KEY MANAGEMENT =====
+function saveApiKey() {
+  const input = document.getElementById('apiKeyInput').value.trim();
+  if (!input.startsWith('AIza') || input.length < 30) {
+    document.getElementById('apiKeyError').textContent = '有効なAPIキーを入力してください（AIzaSy...で始まる）';
+    return;
+  }
+  API_KEY = input;
+  localStorage.setItem('gemini_api_key', API_KEY);
+  updateApiNotice();
+  showScreen('landing');
+}
+
+function updateApiNotice() {
+  const noticeText = document.getElementById('apiNoticeText');
+  const notice = document.getElementById('apiNotice');
+  if (API_KEY) {
+    noticeText.innerHTML = `APIキー設定済み ✓ <span style="color:var(--ink-faint);font-size:0.85em">${API_KEY.substring(0,8)}...${API_KEY.slice(-4)}</span>`;
+    notice.style.borderColor = '#c8e6c9';
+    notice.style.background = '#f1f8e9';
+    document.getElementById('apiNotice').querySelector('button').textContent = '変更';
+    const statusEl = document.getElementById('currentKeyStatus');
+    if (statusEl) statusEl.textContent = `現在のキー: ${API_KEY.substring(0,8)}...${API_KEY.slice(-4)}`;
+  } else {
+    noticeText.textContent = 'APIキーを設定してください（必須）';
+    notice.style.borderColor = '#ffccbc';
+    notice.style.background = '#fff3e0';
+  }
+}
+
+function initApp() {
+  updateApiNotice();
+  if (API_KEY) {
+    document.getElementById('apiKeyInput').value = API_KEY;
+  }
+  // Show API key screen first if no key
+  if (!API_KEY) {
+    showScreen('apikey');
+  }
+}
+
+// ===== LANDING FUNCTIONS =====
+function selectPersona(card) {
+  document.querySelectorAll('.persona-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  selectedPersona = card.dataset.persona;
+}
+
+function selectLevel(pill) {
+  document.querySelectorAll('.level-pill').forEach(p => p.classList.remove('selected'));
+  pill.classList.add('selected');
+  selectedLevel = pill.dataset.level;
+}
+
+function startChat() {
+  if (!API_KEY) {
+    showScreen('apikey');
+    return;
+  }
+  const persona = PERSONAS[selectedPersona];
+  document.getElementById('chatAvatar').textContent = persona.avatar;
+  document.getElementById('chatName').textContent = persona.name;
+  document.getElementById('chatStatus').textContent = '接続中...';
+  document.getElementById('chatStatus').className = 'chat-persona-status';
+
+  showScreen('chat');
+
+  conversationHistory = [];
+  messageCount = 0;
+  vocabCount = 0;
+  document.getElementById('messages').innerHTML = '';
+  document.getElementById('statMessages').textContent = '0';
+  document.getElementById('statVocab').textContent = '0';
+
+  sessionStartTime = Date.now();
+  if (sessionTimer) clearInterval(sessionTimer);
+  sessionTimer = setInterval(updateTimer, 1000);
+
+  // Initial greeting
+  setTimeout(() => sendAIMessage(getGreeting()), 800);
+}
+
+function getGreeting() {
+  const greetings = {
+    sakura: `こんにちは！さくらです😊 今日は一緒に日本語の練習をしましょう！あなたは今、どんなことに興味がありますか？`,
+    sensei: `こんにちは。田中です。今日も一緒に日本語を勉強しましょう。まず、最近どんな日本語の勉強をしていますか？`,
+    kenta: `おー、いらっしゃい！健太やで！大阪から来てんねん。日本語の練習したいんやって？ええやん！どんなこと話したい？`,
+    master: `いらっしゃいませ。今夜はゆっくりしていってください。今日は何を飲みますか？それとも、まず日本のことでも話しましょうか。`
+  };
+  return greetings[selectedPersona];
+}
+
+function goBack() {
+  if (sessionTimer) clearInterval(sessionTimer);
+  showScreen('landing');
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ===== CHAT FUNCTIONS =====
+async function sendTextMessage() {
+  const input = document.getElementById('textInput');
+  const text = input.value.trim();
+  if (!text || isAISpeaking) return;
+  input.value = '';
+  input.style.height = '44px';
+  await processUserMessage(text);
+}
+
+async function processUserMessage(text) {
+  addMessage('user', text, '🧑');
+  conversationHistory.push({ role: 'user', parts: [{ text }] });
+  updateStats();
+  showTyping();
+
+  try {
+    const persona = PERSONAS[selectedPersona];
+    const systemInstruction = persona.systemPrompt(selectedLevel);
+
+    const body = {
+      system_instruction: { parts: [{ text: systemInstruction }] },
+      contents: conversationHistory,
+      generationConfig: { temperature: 0.9, maxOutputTokens: 600 }
+    };
+
+    const resp = await fetch(getApiUrl(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    const data = await resp.json();
+    hideTyping();
+
+    if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
+      const rawText = data.candidates[0].content.parts[0].text;
+      const { mainText, vocabs } = parseAIResponse(rawText);
+
+      conversationHistory.push({ role: 'model', parts: [{ text: rawText }] });
+      addMessage('ai', mainText, PERSONAS[selectedPersona].avatar, vocabs);
+      updateStats();
+      setStatus('live');
+
+      if (currentMode === 'voice') {
+        await speakText(mainText);
+      }
+    } else if (data.error) {
+      hideTyping();
+      const errMsg = data.error.message || 'APIエラーが発生しました';
+      addMessage('ai', `⚠️ APIエラー: ${errMsg}<br><small style="color:var(--ink-faint)">APIキーを確認してください</small>`, PERSONAS[selectedPersona].avatar, []);
+      if (data.error.code === 400 || data.error.code === 403) showScreen('apikey');
+    } else {
+      hideTyping();
+      addMessage('ai', `⚠️ 応答がありませんでした。もう一度試してください。<br><small>Response: ${JSON.stringify(data).substring(0,100)}</small>`, PERSONAS[selectedPersona].avatar, []);
+    }
+  } catch (err) {
+    hideTyping();
+    console.error(err);
+    addMessage('ai', `接続エラーが発生しました。もう一度試してください。(${err.message})`, PERSONAS[selectedPersona].avatar, []);
+  }
+}
+
+function parseAIResponse(text) {
+  const vocabs = [];
+  const vocabRegex = /\[VOCAB:([^|]+)\|([^|]+)\|([^|]+)\|([^\]]+)\]/g;
+  let match;
+  while ((match = vocabRegex.exec(text)) !== null) {
+    vocabs.push({ word: match[1], reading: match[2], meaning: match[3], example: match[4] });
+    vocabCount++;
+  }
+  const mainText = text.replace(/\[VOCAB:[^\]]+\]/g, '').trim();
+  document.getElementById('statVocab').textContent = vocabCount;
+  return { mainText, vocabs };
+}
+
+function addMessage(role, text, avatar, vocabs = []) {
+  const container = document.getElementById('messages');
+  const msgEl = document.createElement('div');
+  msgEl.className = `message ${role}`;
+  msgEl.innerHTML = `
+    <div class="msg-avatar">${avatar}</div>
+    <div class="msg-content">
+      <div class="msg-bubble">${formatText(text)}</div>
+      ${vocabs.length > 0 ? `<div class="vocab-chips">${vocabs.map(v =>
+        `<span class="vocab-chip" onclick="showVocabPopup('${escapeAttr(v.word)}','${escapeAttr(v.reading)}','${escapeAttr(v.meaning)}','${escapeAttr(v.example)}',this)">${v.word}</span>`
+      ).join('')}</div>` : ''}
+    </div>`;
+  container.appendChild(msgEl);
+  container.scrollTop = container.scrollHeight;
+  messageCount++;
+}
+
+function formatText(text) {
+  return text.replace(/\n/g, '<br>');
+}
+
+function escapeAttr(s) {
+  return s.replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+}
+
+let typingEl = null;
+function showTyping() {
+  const container = document.getElementById('messages');
+  typingEl = document.createElement('div');
+  typingEl.className = 'message ai';
+  typingEl.id = 'typingIndicator';
+  typingEl.innerHTML = `
+    <div class="msg-avatar">${PERSONAS[selectedPersona].avatar}</div>
+    <div class="typing-indicator">
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+      <div class="typing-dot"></div>
+    </div>`;
+  container.appendChild(typingEl);
+  container.scrollTop = container.scrollHeight;
+}
+
+function hideTyping() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+async function sendAIMessage(text) {
+  showTyping();
+  await new Promise(r => setTimeout(r, 600));
+  hideTyping();
+  const { mainText, vocabs } = parseAIResponse(text);
+  addMessage('ai', mainText, PERSONAS[selectedPersona].avatar, vocabs);
+  setStatus('live');
+  if (currentMode === 'voice') await speakText(mainText);
+}
+
+function setStatus(state) {
+  const el = document.getElementById('chatStatus');
+  if (state === 'live') {
+    el.textContent = '● 接続中';
+    el.className = 'chat-persona-status live';
+  } else if (state === 'speaking') {
+    el.textContent = '話しています...';
+    el.className = 'chat-persona-status';
+  } else {
+    el.textContent = state;
+    el.className = 'chat-persona-status';
+  }
+}
+
+// ===== VOICE TTS via Gemini =====
+async function speakText(text) {
+  if (!text) return;
+  isAISpeaking = true;
+  setStatus('話しています...');
+  document.getElementById('micBtn').className = 'mic-btn ai-speaking';
+
+  try {
+    const ttsUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${API_KEY}`;
+    const voiceMap = { sakura: 'Kore', sensei: 'Charon', kenta: 'Fenrir', master: 'Orus' };
+    const voiceName = voiceMap[selectedPersona] || 'Kore';
+
+    const body = {
+      contents: [{ parts: [{ text }] }],
+      generationConfig: {
+        responseModalities: ['AUDIO'],
+        speechConfig: {
+          voiceConfig: { prebuiltVoiceConfig: { voiceName } }
+        }
+      }
+    };
+
+    const resp = await fetch(ttsUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    const data = await resp.json();
+    const audioData = data.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+
+    if (audioData) {
+      const wavData = pcmToWav(audioData);
+      const audioBlob = new Blob([wavData], { type: 'audio/wav' });
+      const audioUrl = URL.createObjectURL(audioBlob);
+      if (currentAudio) { currentAudio.pause(); URL.revokeObjectURL(currentAudio.src); }
+      currentAudio = new Audio(audioUrl);
+      currentAudio.onended = () => {
+        isAISpeaking = false;
+        setStatus('live');
+        document.getElementById('micBtn').className = 'mic-btn';
+        URL.revokeObjectURL(audioUrl);
+      };
+      await currentAudio.play();
+    } else {
+      throw new Error('No audio data');
+    }
+  } catch (e) {
+    console.warn('TTS failed, continuing without audio:', e);
+    isAISpeaking = false;
+    setStatus('live');
+    document.getElementById('micBtn').className = 'mic-btn';
+  }
+}
+
+function pcmToWav(base64pcm) {
+  const pcmData = Uint8Array.from(atob(base64pcm), c => c.charCodeAt(0));
+  const sampleRate = 24000, numChannels = 1, bitsPerSample = 16;
+  const byteRate = sampleRate * numChannels * bitsPerSample / 8;
+  const blockAlign = numChannels * bitsPerSample / 8;
+  const dataSize = pcmData.length;
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+  const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+  writeStr(0, 'RIFF');
+  view.setUint32(4, 36 + dataSize, true);
+  writeStr(8, 'WAVE');
+  writeStr(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, byteRate, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bitsPerSample, true);
+  writeStr(36, 'data');
+  view.setUint32(40, dataSize, true);
+  new Uint8Array(buffer, 44).set(pcmData);
+  return buffer;
+}
+
+// ===== SPEECH RECOGNITION =====
+function toggleMic() {
+  if (isAISpeaking) return;
+  if (isListening) stopListening();
+  else startListening();
+}
+
+function startListening() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('お使いのブラウザは音声入力に対応していません。Chrome を使ってください。');
+    return;
+  }
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.lang = 'ja-JP';
+  recognition.interimResults = true;
+  recognition.continuous = false;
+
+  recognition.onstart = () => {
+    isListening = true;
+    document.getElementById('micBtn').className = 'mic-btn listening';
+    document.getElementById('inputHint').textContent = '🎤 聞いています... (もう一度タップで停止)';
+  };
+
+  recognition.onresult = (e) => {
+    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+    document.getElementById('textInput').value = transcript;
+    if (e.results[e.results.length - 1].isFinal) {
+      stopListening();
+      if (transcript.trim()) processUserMessage(transcript.trim());
+    }
+  };
+
+  recognition.onerror = (e) => { console.error(e); stopListening(); };
+  recognition.onend = () => stopListening();
+  recognition.start();
+}
+
+function stopListening() {
+  isListening = false;
+  if (recognition) { try { recognition.stop(); } catch(e) {} }
+  document.getElementById('micBtn').className = 'mic-btn';
+  document.getElementById('inputHint').textContent = 'Enterで送信 · Shift+Enterで改行 · 🎤で音声入力';
+}
+
+// ===== MODE =====
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('modeText').className = mode === 'text' ? 'mode-btn active' : 'mode-btn';
+  document.getElementById('modeVoice').className = mode === 'voice' ? 'mode-btn active' : 'mode-btn';
+  document.getElementById('inputHint').textContent = mode === 'voice'
+    ? '🎤 音声モード: AIの返答を音声で聞けます'
+    : 'Enterで送信 · Shift+Enterで改行 · 🎤で音声入力';
+}
+
+// ===== VOCAB POPUP =====
+function showVocabPopup(word, reading, meaning, example, anchorEl) {
+  const popup = document.getElementById('vocabPopup');
+  document.getElementById('vpWord').textContent = word;
+  document.getElementById('vpReading').textContent = reading;
+  document.getElementById('vpMeaning').textContent = meaning;
+  document.getElementById('vpExample').textContent = example;
+  const rect = anchorEl.getBoundingClientRect();
+  popup.style.left = Math.min(rect.left, window.innerWidth - 300) + 'px';
+  popup.style.top = (rect.top - 10 + window.scrollY) + 'px';
+  popup.style.transform = 'translateY(-100%)';
+  popup.classList.add('show');
+}
+
+function closeVocabPopup() {
+  document.getElementById('vocabPopup').classList.remove('show');
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.vocab-popup') && !e.target.closest('.vocab-chip')) closeVocabPopup();
+});
+
+// ===== UTILS =====
+function handleKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendTextMessage(); }
+}
+
+function autoResize(el) {
+  el.style.height = '44px';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function updateStats() {
+  document.getElementById('statMessages').textContent = messageCount;
+}
+
+function updateTimer() {
+  if (!sessionStartTime) return;
+  const elapsed = Math.floor((Date.now() - sessionStartTime) / 1000);
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+  document.getElementById('statTime').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+}
+
+function toggleTranslationMode(checkbox) {
+  showTranslation = checkbox.checked;
+  document.querySelectorAll('.message.ai').forEach(m => {
+    if (showTranslation) m.classList.add('show-translation');
+    else m.classList.remove('show-translation');
+  });
+}
+
+// Init on load
+window.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>
